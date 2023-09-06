@@ -31,8 +31,7 @@ public class Enum
         PNG = 2,
         JPG = 3
     }
-
-    public enum RequestForJoinDilveryAgentOrCompanyStatus : byte
+    public enum MaintenanceRequestsStatus: byte
     {
         Pending = 1,
         Approved = 2,

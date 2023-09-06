@@ -1,0 +1,8 @@
+﻿using ArabianCo.CrudAppServiceBase;
+using ArabianCo.MaintenanceRequests.Dto;
+
+namespace ArabianCo.MaintenanceRequests;
+
+public interface IMaintenanceRequestAppService:IArabianCoAsyncCrudAppService<MaintenanceRequestDto,int,LiteMaintenanceRequestDto,PagedMaintenanceRequestResultDto,CreateMaintenanceRequestDto,UpdateMaintenanceRequestDto>
+{
+}

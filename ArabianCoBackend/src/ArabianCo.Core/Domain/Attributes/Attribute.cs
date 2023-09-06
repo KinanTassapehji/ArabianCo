@@ -12,7 +12,7 @@ public class Attribute : FullAuditedEntity, IMultiLingualEntity<AttributeTransla
     {
         Translations = new HashSet<AttributeTranslation>();
     }
-    public int CategoryId { get; set; }
+    public int? CategoryId { get; set; }
     [ForeignKey(nameof(CategoryId))]
     public Category Category { get; set; }
     public ICollection<AttributeTranslation> Translations { get; set; }

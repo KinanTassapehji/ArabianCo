@@ -6,7 +6,7 @@ namespace ArabianCo.Attributes.Dto;
 
 public class CreateAttributeDto: ICustomValidate
 {
-    public int CategoryId { get; set; }
+    public int? CategoryId { get; set; }
     public List<AttributeTranslationDto> Translations { get; set; }
 
     public void AddValidationErrors(CustomValidationContext context)

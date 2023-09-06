@@ -13,6 +13,7 @@ using ArabianCo.Domain.FrequentlyQuestions;
 using ArabianCo.Domain.Attributes;
 using ArabianCo.Domain.AttributeValues;
 using ArabianCo.Domain.Products;
+using ArabianCo.Domain.MaintenanceRequests;
 
 namespace ArabianCo.EntityFrameworkCore
 {
@@ -48,5 +49,7 @@ namespace ArabianCo.EntityFrameworkCore
         public virtual DbSet<AttributeValue> AttributeValues {  get; set; }
         public virtual DbSet<AttributeValueTranslation> AttributeValueTranslations {  get; set; }
         public virtual DbSet<Product> Products {  get; set; }
+        public virtual DbSet<ProductTranslation> ProductTranslations {  get; set; }
+        public virtual DbSet<MaintenanceRequest> MaintenanceRequests {  get; set; }
     }
 }

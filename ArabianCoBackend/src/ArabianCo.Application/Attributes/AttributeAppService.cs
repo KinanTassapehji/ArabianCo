@@ -24,13 +24,15 @@ public class AttributeAppService : ArabianCoAsyncCrudAppService<Attribute, Attri
     }
     public override async Task<AttributeDto> CreateAsync(CreateAttributeDto input)
     {
-        await _categoryManger.GetLiteEntityByIdAsync(input.CategoryId);
+        if (input.CategoryId.HasValue)
+            await _categoryManger.GetLiteEntityByIdAsync(input.CategoryId.Value);
         var entity = await base.CreateAsync(input);
         return entity;
     }
     public override async Task<AttributeDto> UpdateAsync(UpdateAttributeDto input)
     {
-        await _categoryManger.GetLiteEntityByIdAsync(input.CategoryId);
+        if(input.CategoryId.HasValue)
+            await _categoryManger.GetLiteEntityByIdAsync(input.CategoryId.Value);
         var entity = await Repository.GetAll().Include(x=>x.Translations).FirstOrDefaultAsync(x=>x.Id==input.Id);
         entity.Translations.Clear();
         MapToEntity(input, entity);
