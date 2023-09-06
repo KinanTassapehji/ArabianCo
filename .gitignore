@@ -21,3 +21,6 @@
 /ArabianCoBackend/src/ArabianCo.Web.Host/obj
 /ArabianCoBackend/test
 /.vs
+/ArabianCoBackend/src/ArabianCo.Core/bin/Debug/net7.0/ar/ArabianCo.Core.resources.dll
+/ArabianCoBackend/src/ArabianCo.Core/bin/Debug/net7.0/ArabianCo.Core.dll
+/ArabianCoBackend/src/ArabianCo.Core/bin/Debug/net7.0/ArabianCo.Core.pdb
