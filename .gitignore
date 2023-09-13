@@ -24,3 +24,8 @@
 /ArabianCoBackend/src/ArabianCo.Core/bin/Debug/net7.0/ar/ArabianCo.Core.resources.dll
 /ArabianCoBackend/src/ArabianCo.Core/bin/Debug/net7.0/ArabianCo.Core.dll
 /ArabianCoBackend/src/ArabianCo.Core/bin/Debug/net7.0/ArabianCo.Core.pdb
+/ArabianCoBackend/src/ArabianCo.Application/bin/Release/net7.0
+/ArabianCoBackend/src/ArabianCo.Core/bin/Release/net7.0
+/ArabianCoBackend/src/ArabianCo.EntityFrameworkCore/bin/Release/net7.0
+/ArabianCoBackend/src/ArabianCo.Web.Core/bin/Release/net7.0
+/ArabianCoBackend/src/ArabianCo.Web.Host
