@@ -27,8 +27,6 @@ public class BrandAppService : ArabianCoAsyncCrudAppService<Brand, BrandDto, int
     }
     public override async Task<PagedResultDto<LiteBrandDto>> GetAllAsync(PagedBrandResultRequestDto input)
     {
-        var userId = AbpSession.UserId;
-        input.UserId = userId;
         var result = await base.GetAllAsync(input);
         foreach (var item in result.Items)
         {
@@ -105,8 +103,8 @@ public class BrandAppService : ArabianCoAsyncCrudAppService<Brand, BrandDto, int
     protected override IQueryable<Brand> CreateFilteredQuery(PagedBrandResultRequestDto input)
     {
         var data = base.CreateFilteredQuery(input);
-        if (!input.UserId.HasValue)
-            data = data.Where(x => x.IsActive);
+        if (!input.IsActive.HasValue)
+            data = data.Where(x => x.IsActive == input.IsActive.Value);
         data = data.Include(x => x.Translations);
         return data;
     }

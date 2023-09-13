@@ -5,7 +5,6 @@ namespace ArabianCo.Brands.Dto;
 
 public class PagedBrandResultRequestDto : PagedResultRequestDto
 {
-    [JsonIgnore]
-    public long? UserId { get; set; }
+    public bool? IsActive { get; set; }
 }
 
