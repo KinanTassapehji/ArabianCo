@@ -22,6 +22,7 @@ public class Product : FullAuditedEntity, IMultiLingualEntity<ProductTranslation
     public int BrandId { get; set; }
     [ForeignKey(nameof(BrandId))]
     public virtual Brand Brand { get; set; }
+    public bool IsActive { get; set; }
     public ICollection<AttributeValue> AttributeValues { get; set; }
     public ICollection<ProductTranslation> Translations { get; set; }
 }

@@ -9,8 +9,6 @@ namespace ArabianCo.Attachments.Dto;
 public class LiteAttachmentDto : EntityDto
 {
     /// <summary>
-    /// Profile = 1
-    /// RequestForJoinAsDeliveryAgent = 2,
     /// </summary>
     public AttachmentRefType RefType { get; set; }
     public string Url { get; set; }

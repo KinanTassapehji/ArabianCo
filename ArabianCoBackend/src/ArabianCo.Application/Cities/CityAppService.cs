@@ -162,18 +162,8 @@ namespace ArabianCo.Cities
         {
             var data = base.CreateFilteredQuery(input);
             data = data.Include(x => x.Translations);
-
             if (input.isActive.HasValue)
                 data = data.Where(x => x.IsActive == input.isActive.Value);
-            if (!input.ForWanted.HasValue)
-                data = data.Include(x => x.Areas).ThenInclude(x => x.Translations);
-            if (input.ForWanted.HasValue)
-            {
-                if (input.ForWanted.Value == false)
-                {
-                    data = data.Include(x => x.Areas).ThenInclude(x => x.Translations);
-                }
-            }
             if (!input.Keyword.IsNullOrEmpty())
                 data = data.Where(x => x.Translations.Where(x => x.Name.Contains(input.Keyword)).Any());
             if (input.CountryId.HasValue)

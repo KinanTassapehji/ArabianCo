@@ -23,6 +23,8 @@ public class Attachment : FullAuditedEntity
     public long? RefId { get; set; }
 
     public AttachmentRefType RefType { get; set; }
+    [StringLength(50)]
+    public string Color { get; set; }
 
     public static bool IsValidAttachmentRefType(byte type)
     {

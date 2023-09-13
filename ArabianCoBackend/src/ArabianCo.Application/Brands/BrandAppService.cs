@@ -7,6 +7,7 @@ using ArabianCo.CrudAppServiceBase;
 using ArabianCo.Domain.Attachments;
 using ArabianCo.Domain.Brands;
 using ArabianCo.Localization.SourceFiles;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -24,7 +25,6 @@ public class BrandAppService : ArabianCoAsyncCrudAppService<Brand, BrandDto, int
         _brandManger = brandManger;
         _attachmentManager = attachmentManager;
     }
-    [AbpAuthorize]
     public override async Task<PagedResultDto<LiteBrandDto>> GetAllAsync(PagedBrandResultRequestDto input)
     {
         var userId = AbpSession.UserId;
@@ -91,6 +91,16 @@ public class BrandAppService : ArabianCoAsyncCrudAppService<Brand, BrandDto, int
         entity.LastModificationTime = DateTime.UtcNow;
         await _brandManger.UpdateAsync(entity);
         return MapToEntityDto(entity);
+    }
+    [AbpAuthorize]
+    [HttpPut]
+    public async Task SwitchActivation(SwitchActivationInputDto input)
+    {
+        var entity = await _brandManger.GetLiteEntityByIdAsync(input.Id);
+        entity.IsActive = !entity.IsActive;
+        entity.LastModificationTime = DateTime.UtcNow;
+        entity.LastModifierUserId = AbpSession.UserId.Value;
+        await _brandManger.UpdateAsync(entity);
     }
     protected override IQueryable<Brand> CreateFilteredQuery(PagedBrandResultRequestDto input)
     {

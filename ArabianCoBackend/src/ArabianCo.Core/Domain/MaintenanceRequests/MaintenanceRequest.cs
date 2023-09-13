@@ -23,6 +23,7 @@ public class MaintenanceRequest:FullAuditedEntity
     public string PhoneNumber { get; set; }
     public string SerialNumber { get; set; }
     public string Problem { get; set; }
+    public string Address { get; set; }
     public MaintenanceRequestsStatus Status { get; set; }
     [Required]
     public bool IsInWarrantyPeriod { get; set; }

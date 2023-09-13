@@ -2,7 +2,6 @@
 using Abp.Domain.Repositories;
 using Abp.Domain.Services;
 using Microsoft.EntityFrameworkCore;
-using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
 
 namespace ArabianCo.Domain.Products;
@@ -22,6 +21,7 @@ internal class ProductManger : DomainService, IProductManger
             .Include(x=>x.Translations)
             .Include(x=>x.AttributeValues)
             .ThenInclude(x=>x.Attribute.Translations)
+            .Include(x=>x.AttributeValues).ThenInclude(x=>x.Translations)
             .Include(x=>x.Category.Translations)
             .Include(x=>x.Brand.Translations)
             .FirstOrDefaultAsync(x=>x.Id==id);
@@ -32,6 +32,7 @@ internal class ProductManger : DomainService, IProductManger
 
     public Task<int> InsertAndGetIdAsync(Product product)
     {
+        product.IsActive = true;
         return _productRepository.InsertAndGetIdAsync(product);
     }
 

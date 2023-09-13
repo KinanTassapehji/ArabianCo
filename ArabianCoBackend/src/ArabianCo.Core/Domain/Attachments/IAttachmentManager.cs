@@ -36,7 +36,7 @@ public interface IAttachmentManager : IDomainService
     /// </summary>
     /// <param name="attachment">Attachment Entity</param>
     /// <param name="refId">Id of related entity</param>
-    Task UpdateRefIdAsync(Attachment attachment, int refId);
+    Task UpdateRefIdAsync(Attachment attachment, int refId, string color = null);
 
     /// <summary>
     /// Check if attachment id exists, and has a specific related entity type.
@@ -46,7 +46,7 @@ public interface IAttachmentManager : IDomainService
     /// <param name="refType">Type of related Entity</param>
     /// <param name="refId">Id of related entity</param>
     /// <returns>The Attachment after modification</returns>
-    Task<Attachment> CheckAndUpdateRefIdAsync(int id, AttachmentRefType refType, int refId);
+    Task<Attachment> CheckAndUpdateRefIdAsync(int id, AttachmentRefType refType, int refId,string Color = null);
 
     /// <summary>
     /// Update RefId to be null, so it can be removed by background service.

@@ -1,5 +1,6 @@
 ﻿using Abp.Domain.Repositories;
 using Abp.Domain.Services;
+using Abp.EntityFrameworkCore.Repositories;
 using Abp.UI;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -49,21 +50,23 @@ internal class AttachmentManager : DomainService, IAttachmentManager
         var baseUri = new Uri(_appBaseUrl);
         return (new Uri(baseUri, attachment.RelativePath)).AbsoluteUri;
     }
-    public async Task UpdateRefIdAsync(Attachment attachment, int refId)
+    public async Task UpdateRefIdAsync(Attachment attachment, int refId, string color = null)
     {
         if (attachment.RefId != null)
             throw new UserFriendlyException(L("AttachmentAlreadyRelatedToEntity"),
                 $"Id: {attachment.Id}, RefType: {attachment.RefType}");
 
         attachment.RefId = refId;
+        if(color != null)
+            attachment.Color = color;
         await _repository.UpdateAsync(attachment);
     }
 
-    public async Task<Attachment> CheckAndUpdateRefIdAsync(int id, AttachmentRefType refType, int refId)
+    public async Task<Attachment> CheckAndUpdateRefIdAsync(int id, AttachmentRefType refType, int refId, string color = null)
     {
         //Check if type is correct and update refId
         var attachment = await GetAndCheckAsync(id, refType);
-        await UpdateRefIdAsync(attachment, refId);
+        await UpdateRefIdAsync(attachment, refId,color);
 
         return attachment;
     }
@@ -76,11 +79,13 @@ internal class AttachmentManager : DomainService, IAttachmentManager
 
     public async Task DeleteAllRefIdAsync(int refId, AttachmentRefType refType)
     {
-        foreach (var attachment in await GetListByRefAsync(refId, refType))
+        var list = await GetListByRefAsync(refId, refType);
+        foreach (var attachment in list)
         {
             attachment.RefId = null;
-            await _repository.UpdateAsync(attachment);
         }
+        _repository.GetDbContext().UpdateRange(list);
+        await UnitOfWorkManager.Current.SaveChangesAsync();
     }
 
     public void CheckAttachmentRefType(AttachmentRefType refType, AttachmentType fileType)
@@ -109,13 +114,17 @@ internal class AttachmentManager : DomainService, IAttachmentManager
     {
         switch (refType)
         {
-            case AttachmentRefType.Product:
+            case AttachmentRefType.ProductCover:
                 return ImagesAcceptedTypes;
 
             case AttachmentRefType.Brand:
                 return ImagesAcceptedTypes;
+
             case AttachmentRefType.Category:
                 return ImagesAcceptedTypes;
+
+            case AttachmentRefType.Product:
+                 return ImagesAcceptedTypes;
         }
 
         return new AttachmentType[] { };

@@ -13,6 +13,7 @@ public class Enum
         Product = 1,
         Brand = 2,
         Category = 3,
+        ProductCover = 4,
     }
     public enum AttachmentType : byte
     {

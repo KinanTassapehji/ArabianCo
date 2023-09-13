@@ -11,7 +11,7 @@ internal class ProductMapProfile:Profile
     {
         CreateMap<CreateProductDto, Product>();
         CreateMap<UpdateProductDto, Product>();
-        CreateMap<ProductTranslationDto, ProductTranslation>();
+        CreateMap<ProductTranslationDto, ProductTranslation>().ReverseMap();
         CreateMap<CreateAttributeValueDto, AttributeValue>();
         CreateMap<AttributeValueTranslationDto, AttributeValueTranslation>().ReverseMap();
     }

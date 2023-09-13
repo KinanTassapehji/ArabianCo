@@ -16,6 +16,7 @@ public class UploadAttachmentInputDto
     ///  Product = 1,
     ///  Brand = 2,
     ///  Category = 3,
+    ///  ProductCover = 4,
     /// </summary>
     public AttachmentRefType RefType { get; set; }
 
