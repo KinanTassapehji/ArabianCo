@@ -57,7 +57,7 @@ namespace ArabianCo.Web.Host.Startup
             services.AddSignalR();
 
             // Configure CORS for angular2 UI
-            services.AddCors(
+            /*services.AddCors(
                 options => options.AddPolicy(
                     _defaultCorsPolicyName,
                     builder => builder
@@ -72,7 +72,7 @@ namespace ArabianCo.Web.Host.Startup
                         .AllowAnyMethod()
                         .AllowCredentials()
                 )
-            );
+            );*/
 
             // Swagger - Enable this line and the related lines in Configure method to enable swagger UI
             ConfigureSwagger(services);
