@@ -55,7 +55,7 @@ namespace ArabianCo.Web.Host.Startup
             AuthConfigurer.Configure(services, _appConfiguration);
 
             services.AddSignalR();
-
+            services.AddCors();
             // Configure CORS for angular2 UI
             /*services.AddCors(
                 options => options.AddPolicy(
@@ -93,8 +93,13 @@ namespace ArabianCo.Web.Host.Startup
         {
             app.UseAbp(options => { options.UseAbpRequestLocalization = false; }); // Initializes ABP framework.
 
-            app.UseCors(_defaultCorsPolicyName); // Enable CORS!
-
+            //app.UseCors(_defaultCorsPolicyName); // Enable CORS!
+            app.UseCors(builder =>
+            {
+                builder.AllowAnyOrigin()
+                       .AllowAnyMethod()
+                       .AllowAnyHeader();
+            });
             app.UseStaticFiles();
 
             app.UseRouting();
