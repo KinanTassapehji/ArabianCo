@@ -103,7 +103,7 @@ public class BrandAppService : ArabianCoAsyncCrudAppService<Brand, BrandDto, int
     protected override IQueryable<Brand> CreateFilteredQuery(PagedBrandResultRequestDto input)
     {
         var data = base.CreateFilteredQuery(input);
-        if (!input.IsActive.HasValue)
+        if (input.IsActive.HasValue)
             data = data.Where(x => x.IsActive == input.IsActive.Value);
         data = data.Include(x => x.Translations);
         return data;
