@@ -18,13 +18,13 @@ using System.Threading.Tasks;
 
 namespace ArabianCo.Products;
 
-public class ProductService : ArabianCoAsyncCrudAppService<Product, ProductDto, int, LiteProductDto, PagedProductResultRequestDto, CreateProductDto, UpdateProductDto>,IProductService
+public class ProductAppService : ArabianCoAsyncCrudAppService<Product, ProductDto, int, LiteProductDto, PagedProductResultRequestDto, CreateProductDto, UpdateProductDto>,IProductAppService
 {
     private readonly IProductManger _productManger;
     private readonly IAttachmentManager _attachmentManager;
     private readonly IBrandManger _brandManger;
     private readonly ICategoryManger _categoryManger;
-    public ProductService(IRepository<Product, int> repository, IProductManger productManger, IAttachmentManager attachmentManager, ICategoryManger categoryManger, IBrandManger brandManger) : base(repository)
+    public ProductAppService(IRepository<Product, int> repository, IProductManger productManger, IAttachmentManager attachmentManager, ICategoryManger categoryManger, IBrandManger brandManger) : base(repository)
     {
         _productManger = productManger;
         _attachmentManager = attachmentManager;
@@ -140,6 +140,10 @@ public class ProductService : ArabianCoAsyncCrudAppService<Product, ProductDto, 
         data = data.Include(x => x.Translations);
         data = data.Include(c => c.Category.Translations);
         data = data.Include(x => x.Brand.Translations);
+        if (!input.Keyword.IsNullOrEmpty())
+        {
+            data = data.Where(x => x.Translations.Any(p => p.Description.Contains(input.Keyword)) || x.Brand.Translations.Any(b=>b.Name == input.Keyword) || x.Category.Translations.Any(x=>x.Name == input.Keyword));
+        }
         return data;
     }
 }
