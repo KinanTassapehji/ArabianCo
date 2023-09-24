@@ -14,6 +14,7 @@ using ArabianCo.Domain.Attributes;
 using ArabianCo.Domain.AttributeValues;
 using ArabianCo.Domain.Products;
 using ArabianCo.Domain.MaintenanceRequests;
+using ArabianCo.Domain.Questions;
 
 namespace ArabianCo.EntityFrameworkCore
 {
@@ -51,5 +52,6 @@ namespace ArabianCo.EntityFrameworkCore
         public virtual DbSet<Product> Products {  get; set; }
         public virtual DbSet<ProductTranslation> ProductTranslations {  get; set; }
         public virtual DbSet<MaintenanceRequest> MaintenanceRequests {  get; set; }
+        public virtual DbSet<Question> Questions {  get; set; }
     }
 }
