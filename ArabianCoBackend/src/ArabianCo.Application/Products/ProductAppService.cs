@@ -131,10 +131,10 @@ public class ProductAppService : ArabianCoAsyncCrudAppService<Product, ProductDt
     protected override IQueryable<Product> CreateFilteredQuery(PagedProductResultRequestDto input)
     {
         var data = base.CreateFilteredQuery(input);
-        if (input.BrandId.HasValue)
-            data = data.Where(x => x.Id == input.BrandId.Value);
-        if(input.CategoryId.HasValue)
-            data = data.Where(x=>x.CategoryId == input.CategoryId.Value);
+        if (!input.BrandIds.IsNullOrEmpty())
+            data = data.Where(x => input.BrandIds.Contains(x.BrandId));
+        if(!input.CategoryIds.IsNullOrEmpty())
+            data = data.Where(x=> input.CategoryIds.Contains(x.CategoryId));
         if(input.IsActive.HasValue)
             data = data.Where(x=>x.IsActive == input.IsActive.Value);
         data = data.Include(x => x.Translations);

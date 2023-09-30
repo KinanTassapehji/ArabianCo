@@ -20,11 +20,11 @@ internal class BrandManger:DomainService, IBrandManger
 
     public async Task<bool> CheckIfBrandIsExist(List<BrandTranslation> translations)
     {
-        var categories = await _brandTranslationRepository.GetAll().ToListAsync();
-        foreach (var translation in categories)
+        var brands = await _brandTranslationRepository.GetAll().ToListAsync();
+        foreach (var existingBrand in brands)
         {
-            foreach (var category in categories)
-                if (category.Name == translation.Name && category.Language == translation.Language)
+            foreach (var brand in translations)
+                if (existingBrand.Name == brand.Name && existingBrand.Language == brand.Language)
                     return true;
         }
         return false;

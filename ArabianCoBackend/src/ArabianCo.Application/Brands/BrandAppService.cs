@@ -82,7 +82,11 @@ public class BrandAppService : ArabianCoAsyncCrudAppService<Brand, BrandDto, int
             {
                 await _attachmentManager.DeleteRefIdAsync(oldPhoto);
                 await _attachmentManager.CheckAndUpdateRefIdAsync(input.AttachmentId, Enums.Enum.AttachmentRefType.Brand, input.Id);
-            } 
+            }
+        }
+        else
+        {
+            await _attachmentManager.CheckAndUpdateRefIdAsync(input.AttachmentId, Enums.Enum.AttachmentRefType.Brand, input.Id);
         }
         entity.Translations.Clear();
         MapToEntity(input, entity);
