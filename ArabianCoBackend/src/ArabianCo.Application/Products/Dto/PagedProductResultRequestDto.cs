@@ -9,4 +9,5 @@ public class PagedProductResultRequestDto : PagedResultRequestDto
     public List<int> BrandIds { get; set; }
     public List<int> CategoryIds { get; set; }
     public bool? IsActive { get; set; }
+    public bool? IsSpecial { get; set; }
 }

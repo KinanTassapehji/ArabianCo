@@ -1,6 +1,7 @@
 ﻿using Abp.Runtime.Validation;
 using Castle.Core.Internal;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace ArabianCo.Products.Dto;
@@ -10,6 +11,8 @@ public class CreateProductDto : ICustomValidate
     public string ModelNumber { get; set; }
     public int CategoryId { get; set; }
     public int BrandId { get; set; }
+    [DefaultValue(false)]
+    public bool IsSpecial { get; set; }
     public List<ProductTranslationDto> Translations { get; set; }
     public List<CreateAttributeValueDto> AttributeValues { get; set; }
     public List<CreateProductCoverDto> ProductCoverAttachments { get; set; }

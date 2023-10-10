@@ -14,6 +14,7 @@ public class Enum
         Brand = 2,
         Category = 3,
         ProductCover = 4,
+        MaintenanceRequests = 5,
     }
     public enum AttachmentType : byte
     {

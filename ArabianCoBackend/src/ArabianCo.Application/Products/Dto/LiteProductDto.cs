@@ -8,6 +8,7 @@ public class LiteProductDto:EntityDto
     public string ModelNumber { get; set; }
     public string Description { get; set; }
     public bool IsActive { get; set; }
+    public bool IsSpecial { get; set; }
     public IndexDto Brand { get; set; }
     public IndexDto Category { get; set; }
     public List<ProductCoverDto> Covers { get; set; }

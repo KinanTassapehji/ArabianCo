@@ -27,4 +27,5 @@ public class CreateMaintenanceRequestDto
     public int BrandId { get; set; }
     [Required]
     public int CategoryId { get; set; }
+    public int? AttachmentId { get; set; }
 }

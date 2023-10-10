@@ -125,6 +125,8 @@ internal class AttachmentManager : DomainService, IAttachmentManager
 
             case AttachmentRefType.Product:
                  return ImagesAcceptedTypes;
+            case AttachmentRefType.MaintenanceRequests:
+                    return ImagesAcceptedTypes;
         }
 
         return new AttachmentType[] { };

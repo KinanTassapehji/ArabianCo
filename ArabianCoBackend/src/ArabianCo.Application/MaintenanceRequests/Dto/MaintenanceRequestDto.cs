@@ -1,5 +1,6 @@
 ﻿using Abp.Application.Services.Dto;
 using ArabianCo.Areas.Dto;
+using ArabianCo.Attachments.Dto;
 using ArabianCo.Brands.Dto;
 using ArabianCo.Categories.Dto;
 
@@ -17,4 +18,5 @@ public class MaintenanceRequestDto:EntityDto
     public AreaDetailsDto Area { get; set; }
     public BrandDto Brand { get; set; }
     public CategoryDto Category { get; set; }
+    public LiteAttachmentDto Attachment { get; set; }
 }

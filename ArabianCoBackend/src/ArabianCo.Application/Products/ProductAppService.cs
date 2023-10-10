@@ -137,6 +137,8 @@ public class ProductAppService : ArabianCoAsyncCrudAppService<Product, ProductDt
             data = data.Where(x=> input.CategoryIds.Contains(x.CategoryId));
         if(input.IsActive.HasValue)
             data = data.Where(x=>x.IsActive == input.IsActive.Value);
+        if (input.IsSpecial.HasValue)
+            data = data.Where(x => x.IsSpecial == input.IsSpecial);
         data = data.Include(x => x.Translations);
         data = data.Include(c => c.Category.Translations);
         data = data.Include(x => x.Brand.Translations);

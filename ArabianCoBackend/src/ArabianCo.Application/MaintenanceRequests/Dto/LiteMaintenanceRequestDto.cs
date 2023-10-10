@@ -1,4 +1,5 @@
 ﻿using Abp.Application.Services.Dto;
+using ArabianCo.Attachments.Dto;
 
 namespace ArabianCo.MaintenanceRequests.Dto;
 
