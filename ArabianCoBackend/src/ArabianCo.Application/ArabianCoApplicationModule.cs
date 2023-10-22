@@ -2,6 +2,7 @@
 using Abp.Configuration;
 using Abp.Modules;
 using Abp.Reflection.Extensions;
+using ArabianCo.AboutUss.Dto;
 using ArabianCo.Areas.Dto;
 using ArabianCo.Attributes.Dto;
 using ArabianCo.Authorization;
@@ -9,6 +10,7 @@ using ArabianCo.Brands.Dto;
 using ArabianCo.Categories.Dto;
 using ArabianCo.Cities.Dto;
 using ArabianCo.Countries.Dto;
+using ArabianCo.Domain.AboutUss;
 using ArabianCo.Domain.Areas;
 using ArabianCo.Domain.Attributes;
 using ArabianCo.Domain.AttributeValues;
@@ -81,6 +83,12 @@ namespace ArabianCo
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
                 configuration.CreateMultiLingualMap<Area, AreaTranslation, AreaDto>(context).TranslationMap
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+                #endregion
+
+                #region AboutUs
+                configuration.CreateMultiLingualMap<AboutUs, AboutUsTranslation, AboutUsDto>(context).TranslationMap
+               .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
+               .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
                 #endregion
 
                 #region Category

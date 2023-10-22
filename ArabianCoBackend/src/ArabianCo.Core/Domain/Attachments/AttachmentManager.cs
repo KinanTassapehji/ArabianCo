@@ -85,7 +85,6 @@ internal class AttachmentManager : DomainService, IAttachmentManager
             attachment.RefId = null;
         }
         _repository.GetDbContext().UpdateRange(list);
-        await UnitOfWorkManager.Current.SaveChangesAsync();
     }
 
     public void CheckAttachmentRefType(AttachmentRefType refType, AttachmentType fileType)
@@ -126,6 +125,8 @@ internal class AttachmentManager : DomainService, IAttachmentManager
             case AttachmentRefType.Product:
                  return ImagesAcceptedTypes;
             case AttachmentRefType.MaintenanceRequests:
+                    return ImagesAcceptedTypes;
+            case AttachmentRefType.AboutUs:
                     return ImagesAcceptedTypes;
         }
 

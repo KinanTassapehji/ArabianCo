@@ -1,9 +1,11 @@
 ﻿using Abp.Application.Services.Dto;
 using Abp.Authorization;
 using Abp.Domain.Repositories;
+using Abp.EntityFrameworkCore.Repositories;
 using ArabianCo.Attachments.Dto;
 using ArabianCo.CrudAppServiceBase;
 using ArabianCo.Domain.Attachments;
+using ArabianCo.Domain.AttributeValues;
 using ArabianCo.Domain.Brands;
 using ArabianCo.Domain.Categories;
 using ArabianCo.Domain.Products;
@@ -24,12 +26,14 @@ public class ProductAppService : ArabianCoAsyncCrudAppService<Product, ProductDt
     private readonly IAttachmentManager _attachmentManager;
     private readonly IBrandManger _brandManger;
     private readonly ICategoryManger _categoryManger;
-    public ProductAppService(IRepository<Product, int> repository, IProductManger productManger, IAttachmentManager attachmentManager, ICategoryManger categoryManger, IBrandManger brandManger) : base(repository)
+    private readonly IRepository<AttributeValue> _attributeValuesrepository;
+    public ProductAppService(IRepository<Product, int> repository, IProductManger productManger, IAttachmentManager attachmentManager, ICategoryManger categoryManger, IBrandManger brandManger, IRepository<AttributeValue> attributeValuesrepository) : base(repository)
     {
         _productManger = productManger;
         _attachmentManager = attachmentManager;
         _categoryManger = categoryManger;
         _brandManger = brandManger;
+        _attributeValuesrepository = attributeValuesrepository;
     }
     [AbpAuthorize]
     public override async Task<ProductDto> CreateAsync(CreateProductDto input)
@@ -53,7 +57,8 @@ public class ProductAppService : ArabianCoAsyncCrudAppService<Product, ProductDt
     {
         var entity = await _productManger.GetEntityById(input.Id);
         entity.Translations.Clear();
-        entity.AttributeValues.Clear();
+        //entity.AttributeValues.Clear();
+        _attributeValuesrepository.RemoveRange(entity.AttributeValues);
         await _attachmentManager.DeleteAllRefIdAsync(input.Id, Enums.Enum.AttachmentRefType.ProductCover);
         await _attachmentManager.DeleteAllRefIdAsync(input.Id, Enums.Enum.AttachmentRefType.Product);
         MapToEntity(input,entity);
