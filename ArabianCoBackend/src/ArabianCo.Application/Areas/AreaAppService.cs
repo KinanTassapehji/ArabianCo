@@ -115,6 +115,7 @@ namespace ArabianCo.Areas
             var region = await _areaManager.GetEntityByIdAsync(input.Id);
             if (region is null)
                 throw new UserFriendlyException(string.Format(Exceptions.ObjectWasNotFound, Tokens.Area));
+            await Repository.DeleteAsync(region);
         }
 
         /// <summary>

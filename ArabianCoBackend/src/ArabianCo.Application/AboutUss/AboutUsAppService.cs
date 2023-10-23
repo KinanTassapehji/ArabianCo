@@ -77,6 +77,7 @@ public class AboutUsAppService : ArabianCoAsyncCrudAppService<AboutUs, AboutUsDt
         }
         return entityDto;
     }
+    [AbpAuthorize]
     [HttpPut]
     public async Task SwitchActivation(SwitchActivationInputDto input)
     {
