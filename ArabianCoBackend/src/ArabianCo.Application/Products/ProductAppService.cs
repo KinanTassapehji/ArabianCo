@@ -2,6 +2,7 @@
 using Abp.Authorization;
 using Abp.Domain.Repositories;
 using Abp.EntityFrameworkCore.Repositories;
+using Abp.UI;
 using ArabianCo.Attachments.Dto;
 using ArabianCo.CrudAppServiceBase;
 using ArabianCo.Domain.Attachments;
@@ -39,7 +40,11 @@ public class ProductAppService : ArabianCoAsyncCrudAppService<Product, ProductDt
     public override async Task<ProductDto> CreateAsync(CreateProductDto input)
     {
         await _brandManger.GetLiteEntityByIdAsync(input.BrandId);
-        await _categoryManger.GetLiteEntityByIdAsync(input.CategoryId);
+        var category = await _categoryManger.GetLiteEntityByIdAsync(input.CategoryId);
+        if (category.IsParent)
+        {
+            throw new UserFriendlyException("Category Is Parent Category You Can Not Add Products Into it");
+        }
         var entity = MapToEntity(input);
         var id = await _productManger.InsertAndGetIdAsync(entity);
         foreach(var cover in input.ProductCoverAttachments)
@@ -56,6 +61,11 @@ public class ProductAppService : ArabianCoAsyncCrudAppService<Product, ProductDt
     public override async Task<ProductDto> UpdateAsync(UpdateProductDto input)
     {
         var entity = await _productManger.GetEntityById(input.Id);
+        var category = await _categoryManger.GetLiteEntityByIdAsync(input.CategoryId);
+        if (category.IsParent)
+        {
+            throw new UserFriendlyException("Category Is Parent Category You Can Not Add Products Into it");
+        }
         entity.Translations.Clear();
         //entity.AttributeValues.Clear();
         _attributeValuesrepository.RemoveRange(entity.AttributeValues);
