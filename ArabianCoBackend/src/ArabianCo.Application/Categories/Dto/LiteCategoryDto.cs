@@ -8,6 +8,7 @@ public class LiteCategoryDto : EntityDto<int>
 {
     public string Name { get; set; }
     public string Description { get; set; }
+    public bool IsParent { get; set; }
     public List<CategoryTranslationDto> Translations { get; set; }
     public LiteAttachmentDto Photo { get; set; }
 }

@@ -63,6 +63,11 @@ internal class CategoryManger : DomainService, ICategoryManger
         return entity;
     }
 
+    public Task<List<Category>> GetSubCategoriesByParentCategoryId(int parentCategoryId)
+    {
+        return _categoryRepository.GetAll().Where(x=>x.ParentCategoryId == parentCategoryId).Include(x=>x.Translations).ToListAsync();
+    }
+
     public Task<int> InsertAndGetIdAsync(Category entity)
     {
         return _categoryRepository.InsertAndGetIdAsync(entity);

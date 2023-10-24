@@ -8,7 +8,9 @@ public class CreateCategoryDto : ICustomValidate
 {
     [Required]
     public List<CategoryTranslationDto> Translations { get; set; }
-    public int AttachmentId { get; set; }
+    public bool IsParent { get; set; }
+    public int? ParentCategoryId { get; set; }
+    public int? AttachmentId { get; set; }
     public virtual void AddValidationErrors(CustomValidationContext context)
     {
         if (Translations is null || Translations.Count < 2)

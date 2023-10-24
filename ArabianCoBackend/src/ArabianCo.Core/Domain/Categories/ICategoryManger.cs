@@ -14,5 +14,6 @@ namespace ArabianCo.Domain.Categories
         Task UpdateAsync(Category entity);
         Task<List<Category>> GetAllByListIdsAsync(List<int> ids);
         Task DeleteAsync(int id);
+        Task<List<Category>> GetSubCategoriesByParentCategoryId(int parentCategoryId);
     }
 }

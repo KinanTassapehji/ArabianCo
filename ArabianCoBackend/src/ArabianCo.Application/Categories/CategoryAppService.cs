@@ -6,6 +6,7 @@ using ArabianCo.CrudAppServiceBase;
 using ArabianCo.Domain.Attachments;
 using ArabianCo.Domain.Categories;
 using ArabianCo.Localization.SourceFiles;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,19 +18,22 @@ public class CategoryAppService : ArabianCoAsyncCrudAppService<Category, Categor
 {
     private readonly ICategoryManger _categoryManger;
     private readonly IAttachmentManager _attachmentManager;
-    public CategoryAppService(IRepository<Category, int> repository, ICategoryManger categoryManger, IAttachmentManager attachmentManager) : base(repository)
+    private readonly IMapper _mapper;
+    public CategoryAppService(IRepository<Category, int> repository, ICategoryManger categoryManger, IAttachmentManager attachmentManager, IMapper mapper) : base(repository)
     {
         _categoryManger = categoryManger;
         _attachmentManager = attachmentManager;
+        _mapper = mapper;
     }
     public override async Task<CategoryDetaisDto> CreateAsync(CreateCategoryDto input)
     {
-        var transltion = ObjectMapper.Map<List<CategoryTranslation>>(input.Translations);
-        if (await _categoryManger.CheckIfCategoryIsExist(transltion))
-            throw new UserFriendlyException(string.Format(Exceptions.ObjectIsAlreadyExist, Tokens.Category));
+        //var transltion = ObjectMapper.Map<List<CategoryTranslation>>(input.Translations);
+       /* if (await _categoryManger.CheckIfCategoryIsExist(transltion))
+            throw new UserFriendlyException(string.Format(Exceptions.ObjectIsAlreadyExist, Tokens.Category));*/
         var entity = ObjectMapper.Map<Category>(input);
         var id = await _categoryManger.InsertAndGetIdAsync(entity);
-        await _attachmentManager.CheckAndUpdateRefIdAsync(input.AttachmentId, Enums.Enum.AttachmentRefType.Category, id);
+        if(input.AttachmentId.HasValue)
+            await _attachmentManager.CheckAndUpdateRefIdAsync(input.AttachmentId.Value, Enums.Enum.AttachmentRefType.Category, id);
         return MapToEntityDto(entity);
     }
     public override async Task<PagedResultDto<LiteCategoryDto>> GetAllAsync(PagedCategoryResultRequestDto input)
@@ -54,6 +58,10 @@ public class CategoryAppService : ArabianCoAsyncCrudAppService<Category, Categor
     {
         var entity = await _categoryManger.GetEntityByIdAsync(input.Id);
         var result = MapToEntityDto(entity);
+        if (result.IsParent)
+        {
+            result.SubCategories = _mapper.Map<List<LiteCategoryDto>>(await _categoryManger.GetSubCategoriesByParentCategoryId(input.Id));
+        }
         var photo = await _attachmentManager.GetAttachmentByRefAsync(entity.Id, Enums.Enum.AttachmentRefType.Category);
         if (photo != null)
         {
@@ -72,18 +80,29 @@ public class CategoryAppService : ArabianCoAsyncCrudAppService<Category, Categor
         if (category == null)
             throw new UserFriendlyException(string.Format(Exceptions.ObjectWasNotFound, Tokens.Category));
         category.Translations.Clear();
+        var photo = await _attachmentManager.GetByRefAsync(input.Id, Enums.Enum.AttachmentRefType.Category);
+        if(photo != null)
+        {
+            await _attachmentManager.DeleteRefIdAsync(photo);
+        }
+        if (input.AttachmentId.HasValue)
+            await _attachmentManager.CheckAndUpdateRefIdAsync(input.AttachmentId.Value, Enums.Enum.AttachmentRefType.Category, input.Id);
         MapToEntity(input, category);
         await _categoryManger.UpdateAsync(category);
         return MapToEntityDto(category);
     }
     public override async Task DeleteAsync(EntityDto<int> input)
     {
-        await _categoryManger.GetLiteEntityByIdAsync(input.Id);
+        await _categoryManger.GetEntityByIdAsync(input.Id);
         await _categoryManger.DeleteAsync(input.Id);
     }
     protected override IQueryable<Category> CreateFilteredQuery(PagedCategoryResultRequestDto input)
     {
         var data = base.CreateFilteredQuery(input);
+        if(input.IsParent is not null)
+            data = data.Where(x=>x.IsParent == input.IsParent);
+        if(input.ParentCategoryId is not null)
+            data = data.Where(x=>x.ParentCategoryId == input.ParentCategoryId);
         data = data.Include(x => x.Translations);
         return data;
     }
