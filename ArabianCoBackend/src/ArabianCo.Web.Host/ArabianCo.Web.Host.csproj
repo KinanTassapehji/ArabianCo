@@ -44,6 +44,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="wwwroot\Uploads\Attachments\" />
+    <!-- Exclude the wwwroot\Uploads\Attachments\ folder from content -->
+    <Content Remove="wwwroot\Uploads\Attachments\**" />
   </ItemGroup>
 </Project>
