@@ -51,7 +51,7 @@ public class BrandAppService : ArabianCoAsyncCrudAppService<Brand, BrandDto, int
         var entity = ObjectMapper.Map<Brand>(input);
         entity.IsActive = true;
         var id = await _brandManger.InsertAndGetIdAsync(entity);
-        await _attachmentManager.CheckAndUpdateRefIdAsync(input.AttachmentId,Enums.Enum.AttachmentRefType.Brand,id);
+        await _attachmentManager.CheckAndUpdateRefIdAsync(input.AttachmentId, Enums.Enum.AttachmentRefType.Brand, id);
         return MapToEntityDto(entity);
     }
     public override async Task<BrandDto> GetAsync(EntityDto<int> input)
@@ -70,13 +70,27 @@ public class BrandAppService : ArabianCoAsyncCrudAppService<Brand, BrandDto, int
         }
         return entityDto;
     }
+    public override async Task DeleteAsync(EntityDto<int> input)
+    {
+        var entity = await _brandManger.GetEntityByIdAsync(input.Id);
+        if (entity == null)
+            throw new UserFriendlyException(string.Format("Brand With Id {0} Not Found ", input.Id));
+        var oldPhoto = await _attachmentManager.GetAttachmentByRefAsync(entity.Id, Enums.Enum.AttachmentRefType.Brand);
+        if (oldPhoto != null)
+        {
+            await _attachmentManager.DeleteRefIdAsync(oldPhoto);
+        }
+        entity.Translations.Clear();
+        await CurrentUnitOfWork.SaveChangesAsync();
+        await Repository.DeleteAsync(entity);
+    }
     public override async Task<BrandDto> UpdateAsync(UpdateBrandDto input)
     {
         var entity = await _brandManger.GetEntityByIdAsync(input.Id);
         if (entity == null)
-            throw new UserFriendlyException(string.Format("Brand With Id {0} Not Found ",input.Id));
+            throw new UserFriendlyException(string.Format("Brand With Id {0} Not Found ", input.Id));
         var oldPhoto = await _attachmentManager.GetAttachmentByRefAsync(entity.Id, Enums.Enum.AttachmentRefType.Brand);
-        if(oldPhoto != null)
+        if (oldPhoto != null)
         {
             if (oldPhoto.Id != input.AttachmentId)
             {
@@ -89,6 +103,7 @@ public class BrandAppService : ArabianCoAsyncCrudAppService<Brand, BrandDto, int
             await _attachmentManager.CheckAndUpdateRefIdAsync(input.AttachmentId, Enums.Enum.AttachmentRefType.Brand, input.Id);
         }
         entity.Translations.Clear();
+        await CurrentUnitOfWork.SaveChangesAsync();
         MapToEntity(input, entity);
         entity.LastModificationTime = DateTime.UtcNow;
         await _brandManger.UpdateAsync(entity);
