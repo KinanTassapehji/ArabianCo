@@ -21,7 +21,7 @@ using System.Threading.Tasks;
 
 namespace ArabianCo.Products;
 
-public class ProductAppService : ArabianCoAsyncCrudAppService<Product, ProductDto, int, LiteProductDto, PagedProductResultRequestDto, CreateProductDto, UpdateProductDto>,IProductAppService
+public class ProductAppService : ArabianCoAsyncCrudAppService<Product, ProductDto, int, LiteProductDto, PagedProductResultRequestDto, CreateProductDto, UpdateProductDto>, IProductAppService
 {
     private readonly IProductManger _productManger;
     private readonly IAttachmentManager _attachmentManager;
@@ -47,11 +47,11 @@ public class ProductAppService : ArabianCoAsyncCrudAppService<Product, ProductDt
         }
         var entity = MapToEntity(input);
         var id = await _productManger.InsertAndGetIdAsync(entity);
-        foreach(var cover in input.ProductCoverAttachments)
+        foreach (var cover in input.ProductCoverAttachments)
         {
             await _attachmentManager.CheckAndUpdateRefIdAsync(cover.AttachmentId, Enums.Enum.AttachmentRefType.ProductCover, id, cover.Color);
         }
-        foreach(var photo in input.ProductPhotosIds)
+        foreach (var photo in input.ProductPhotosIds)
         {
             await _attachmentManager.CheckAndUpdateRefIdAsync(photo, Enums.Enum.AttachmentRefType.Product, id);
         }
@@ -71,7 +71,7 @@ public class ProductAppService : ArabianCoAsyncCrudAppService<Product, ProductDt
         _attributeValuesrepository.RemoveRange(entity.AttributeValues);
         await _attachmentManager.DeleteAllRefIdAsync(input.Id, Enums.Enum.AttachmentRefType.ProductCover);
         await _attachmentManager.DeleteAllRefIdAsync(input.Id, Enums.Enum.AttachmentRefType.Product);
-        MapToEntity(input,entity);
+        MapToEntity(input, entity);
         foreach (var cover in input.ProductCoverAttachments)
         {
             await _attachmentManager.CheckAndUpdateRefIdAsync(cover.AttachmentId, Enums.Enum.AttachmentRefType.ProductCover, input.Id, cover.Color);
@@ -114,10 +114,10 @@ public class ProductAppService : ArabianCoAsyncCrudAppService<Product, ProductDt
     [HttpPut]
     public async Task SwitchActivation(SwitchActivationInputDto input)
     {
-        var entity = await Repository.FirstOrDefaultAsync(x=>x.Id == input.Id);
+        var entity = await Repository.FirstOrDefaultAsync(x => x.Id == input.Id);
         entity.LastModificationTime = DateTime.UtcNow;
         entity.LastModifierUserId = AbpSession.UserId.Value;
-        entity.IsActive = ! entity.IsActive;
+        entity.IsActive = !entity.IsActive;
         await _productManger.UpdateAsync(entity);
     }
     [AbpAllowAnonymous]
@@ -148,18 +148,18 @@ public class ProductAppService : ArabianCoAsyncCrudAppService<Product, ProductDt
         var data = base.CreateFilteredQuery(input);
         if (!input.BrandIds.IsNullOrEmpty())
             data = data.Where(x => input.BrandIds.Contains(x.BrandId));
-        if(!input.CategoryIds.IsNullOrEmpty())
-            data = data.Where(x=> input.CategoryIds.Contains(x.CategoryId));
-        if(input.IsActive.HasValue)
-            data = data.Where(x=>x.IsActive == input.IsActive.Value);
+        if (!input.CategoryIds.IsNullOrEmpty())
+            data = data.Where(x => input.CategoryIds.Contains(x.CategoryId));
+        if (input.IsActive.HasValue)
+            data = data.Where(x => x.IsActive == input.IsActive.Value);
         if (input.IsSpecial.HasValue)
             data = data.Where(x => x.IsSpecial == input.IsSpecial);
         data = data.Include(x => x.Translations);
-        data = data.Include(c => c.Category.Translations);
-        data = data.Include(x => x.Brand.Translations);
+        data = data.Include(c => c.Category.Translations).IgnoreQueryFilters();
+        data = data.Include(x => x.Brand.Translations).IgnoreQueryFilters();
         if (!input.Keyword.IsNullOrEmpty())
         {
-            data = data.Where(x => x.Translations.Any(p => p.Description.Contains(input.Keyword)) || x.Brand.Translations.Any(b=>b.Name == input.Keyword) || x.Category.Translations.Any(x=>x.Name == input.Keyword));
+            data = data.Where(x => x.Translations.Any(p => p.Description.Contains(input.Keyword)) || x.Brand.Translations.Any(b => b.Name == input.Keyword) || x.Category.Translations.Any(x => x.Name == input.Keyword));
         }
         return data;
     }
