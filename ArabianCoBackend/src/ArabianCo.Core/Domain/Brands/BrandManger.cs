@@ -3,11 +3,12 @@ using Abp.Domain.Repositories;
 using Abp.Domain.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace ArabianCo.Domain.Brands;
 
-internal class BrandManger:DomainService, IBrandManger
+internal class BrandManger : DomainService, IBrandManger
 {
     private readonly IRepository<Brand> _brandRepository;
     private readonly IRepository<BrandTranslation> _brandTranslationRepository;
@@ -37,7 +38,7 @@ internal class BrandManger:DomainService, IBrandManger
 
     public async Task<Brand> GetEntityByIdAsync(int id)
     {
-        var entity = await _brandRepository.GetAll().Include(x=>x.Translations).FirstOrDefaultAsync();
+        var entity = await _brandRepository.GetAll().Where(x => x.Id == id).Include(x => x.Translations).FirstOrDefaultAsync();
         if (entity == null)
             throw new EntityNotFoundException(typeof(Brand), id);
         return entity;
