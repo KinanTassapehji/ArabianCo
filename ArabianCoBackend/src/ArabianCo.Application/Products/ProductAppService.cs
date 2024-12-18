@@ -104,7 +104,8 @@ public class ProductAppService : ArabianCoAsyncCrudAppService<Product, ProductDt
     {
         var entity = await _productManger.GetEntityById(input.Id);
         entity.Translations.Clear();
-        entity.AttributeValues.Clear();
+        await _productManger.DeleteRangeAttributeValues(entity.AttributeValues);
+        await CurrentUnitOfWork.SaveChangesAsync();
         await _attachmentManager.DeleteAllRefIdAsync(input.Id, Enums.Enum.AttachmentRefType.ProductCover);
         await _attachmentManager.DeleteAllRefIdAsync(input.Id, Enums.Enum.AttachmentRefType.Product);
         await base.DeleteAsync(input);

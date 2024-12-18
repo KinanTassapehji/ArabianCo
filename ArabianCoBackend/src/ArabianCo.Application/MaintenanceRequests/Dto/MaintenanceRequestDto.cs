@@ -6,7 +6,7 @@ using ArabianCo.Categories.Dto;
 
 namespace ArabianCo.MaintenanceRequests.Dto;
 
-public class MaintenanceRequestDto:EntityDto
+public class MaintenanceRequestDto : EntityDto
 {
     public string Email { get; set; }
     public string FullName { get; set; }
