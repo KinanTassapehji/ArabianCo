@@ -6,6 +6,7 @@ using ArabianCo.Domain.Attributes;
 using ArabianCo.Domain.Categories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -14,9 +15,11 @@ namespace ArabianCo.Attributes;
 public class AttributeAppService : ArabianCoAsyncCrudAppService<Attribute, AttributeDto, int, LiteAttributeDto, PagedAttributeResultRequest, CreateAttributeDto, UpdateAttributeDto>, IAttributeAppService
 {
     private readonly ICategoryManger _categoryManger;
-    public AttributeAppService(IRepository<Attribute, int> repository, ICategoryManger categoryManger) : base(repository)
+    private readonly IAttributeManger _attributeManger;
+    public AttributeAppService(IRepository<Attribute, int> repository, ICategoryManger categoryManger, IAttributeManger attributeManger) : base(repository)
     {
         _categoryManger = categoryManger;
+        _attributeManger = attributeManger;
     }
     public override Task<PagedResultDto<LiteAttributeDto>> GetAllAsync(PagedAttributeResultRequest input)
     {
@@ -24,32 +27,43 @@ public class AttributeAppService : ArabianCoAsyncCrudAppService<Attribute, Attri
     }
     public override async Task<AttributeDto> CreateAsync(CreateAttributeDto input)
     {
-        if (input.CategoryId.HasValue)
-            await _categoryManger.GetLiteEntityByIdAsync(input.CategoryId.Value);
-        var entity = await base.CreateAsync(input);
-        return entity;
+        List<Category> categories = await _categoryManger.GetAllByListIdsAsync(input.CategoryIds);
+        var entity = MapToEntity(input);
+        entity.Categories = categories;
+        await _attributeManger.InsertAsync(entity);
+        return MapToEntityDto(entity);
+    }
+    public override async Task DeleteAsync(EntityDto<int> input)
+    {
+        var entity = await _attributeManger.GetEntityByIdAsync(input.Id);
+        entity.Translations.Clear();
+        entity.Categories.Clear();
+        await CurrentUnitOfWork.SaveChangesAsync();
+        await base.DeleteAsync(input);
     }
     public override async Task<AttributeDto> UpdateAsync(UpdateAttributeDto input)
     {
-        if(input.CategoryId.HasValue)
-            await _categoryManger.GetLiteEntityByIdAsync(input.CategoryId.Value);
-        var entity = await Repository.GetAll().Include(x=>x.Translations).FirstOrDefaultAsync(x=>x.Id==input.Id);
+        List<Category> categories = await _categoryManger.GetAllByListIdsAsync(input.CategoryIds);
+        var entity = await Repository.GetAll().Include(x => x.Translations).FirstOrDefaultAsync(x => x.Id == input.Id);
         entity.Translations.Clear();
+        entity.Categories.Clear();
+        await CurrentUnitOfWork.SaveChangesAsync();
         MapToEntity(input, entity);
+        entity.Categories = categories;
         await CurrentUnitOfWork.SaveChangesAsync();
         return MapToEntityDto(entity);
     }
     [ApiExplorerSettings(IgnoreApi = true)]
-    public override Task<AttributeDto> GetAsync(EntityDto<int> input)
+    public override async Task<AttributeDto> GetAsync(EntityDto<int> input)
     {
-        return base.GetAsync(input);
+        var entity = await _attributeManger.GetEntityByIdAsync(input.Id);
+        return MapToEntityDto(entity);
     }
     protected override IQueryable<Attribute> CreateFilteredQuery(PagedAttributeResultRequest input)
     {
         var data = base.CreateFilteredQuery(input);
-        if(input.CategoryId.HasValue)
-            data = data.Where(x=>x.CategoryId == input.CategoryId.Value);
-        data = data.Include(x => x.Category.Translations);
+        if (input.CategoryId.HasValue)
+            data = data.Where(x => x.Categories.Select(x => x.Id).Contains(input.CategoryId.Value));
         data = data.Include(x => x.Translations);
         return data;
     }

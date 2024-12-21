@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace ArabianCo.Domain.Brands;
 
-public interface IBrandManger:IDomainService
+public interface IBrandManger : IDomainService
 {
     Task<Brand> GetEntityByIdAsync(int id);
     Task<bool> CheckIfBrandIsExist(List<BrandTranslation> translations);

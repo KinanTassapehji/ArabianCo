@@ -2,7 +2,6 @@
 using Abp.Domain.Entities.Auditing;
 using ArabianCo.Domain.Categories;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ArabianCo.Domain.Attributes;
 
@@ -11,9 +10,8 @@ public class Attribute : FullAuditedEntity, IMultiLingualEntity<AttributeTransla
     public Attribute()
     {
         Translations = new HashSet<AttributeTranslation>();
+        Categories = new HashSet<Category>();
     }
-    public int? CategoryId { get; set; }
-    [ForeignKey(nameof(CategoryId))]
-    public Category Category { get; set; }
+    public ICollection<Category> Categories { get; set; }
     public ICollection<AttributeTranslation> Translations { get; set; }
 }

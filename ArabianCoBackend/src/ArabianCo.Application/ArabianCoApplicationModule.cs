@@ -27,7 +27,7 @@ using AutoMapper;
 namespace ArabianCo
 {
     [DependsOn(
-    typeof(ArabianCoCoreModule), 
+    typeof(ArabianCoCoreModule),
         typeof(AbpAutoMapperModule))]
     public class ArabianCoApplicationModule : AbpModule
     {
@@ -130,6 +130,8 @@ namespace ArabianCo
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
                 configuration.CreateMultiLingualMap<Attribute, AttributeTranslation, IndexDto>(context).TranslationMap
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+                configuration.CreateMultiLingualMap<Attribute, AttributeTranslation, AttributeDto>(context).TranslationMap
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
                 #endregion
 
 
@@ -145,5 +147,5 @@ namespace ArabianCo
 
             }
         }
-            }
-        }
+    }
+}

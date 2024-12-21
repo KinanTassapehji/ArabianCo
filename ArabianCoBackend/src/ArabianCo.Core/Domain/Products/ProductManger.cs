@@ -25,7 +25,7 @@ internal class ProductManger : DomainService, IProductManger
     }
     public async Task<Product> GetEntityById(int id)
     {
-        Product entity = await _productRepository.GetAll().IgnoreQueryFilters()
+        Product entity = await _productRepository.GetAll()
             .Include(x => x.Translations)
             .Include(x => x.AttributeValues)
             .ThenInclude(x => x.Attribute.Translations)

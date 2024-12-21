@@ -4,6 +4,7 @@ using ArabianCo.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ArabianCo.Migrations
 {
     [DbContext(typeof(ArabianCoDbContext))]
-    partial class ArabianCoDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241221073940_Add-Name-To-ProductTranslations")]
+    partial class AddNameToProductTranslations
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1898,6 +1901,9 @@ namespace ArabianCo.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("CategoryId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("CreationTime")
                         .HasColumnType("datetime2");
 
@@ -1920,6 +1926,8 @@ namespace ArabianCo.Migrations
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
 
                     b.ToTable("Attributes");
                 });
@@ -2704,21 +2712,6 @@ namespace ArabianCo.Migrations
                     b.ToTable("AbpTenants");
                 });
 
-            modelBuilder.Entity("AttributeCategory", b =>
-                {
-                    b.Property<int>("AttributesId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CategoriesId")
-                        .HasColumnType("int");
-
-                    b.HasKey("AttributesId", "CategoriesId");
-
-                    b.HasIndex("CategoriesId");
-
-                    b.ToTable("AttributeCategory");
-                });
-
             modelBuilder.Entity("Abp.Application.Features.EditionFeatureSetting", b =>
                 {
                     b.HasBaseType("Abp.Application.Features.FeatureSetting");
@@ -3000,6 +2993,15 @@ namespace ArabianCo.Migrations
                     b.Navigation("Core");
                 });
 
+            modelBuilder.Entity("ArabianCo.Domain.Attributes.Attribute", b =>
+                {
+                    b.HasOne("ArabianCo.Domain.Categories.Category", "Category")
+                        .WithMany("Attributes")
+                        .HasForeignKey("CategoryId");
+
+                    b.Navigation("Category");
+                });
+
             modelBuilder.Entity("ArabianCo.Domain.Attributes.AttributeTranslation", b =>
                 {
                     b.HasOne("ArabianCo.Domain.Attributes.Attribute", "Core")
@@ -3170,21 +3172,6 @@ namespace ArabianCo.Migrations
                     b.Navigation("LastModifierUser");
                 });
 
-            modelBuilder.Entity("AttributeCategory", b =>
-                {
-                    b.HasOne("ArabianCo.Domain.Attributes.Attribute", null)
-                        .WithMany()
-                        .HasForeignKey("AttributesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ArabianCo.Domain.Categories.Category", null)
-                        .WithMany()
-                        .HasForeignKey("CategoriesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Abp.Application.Features.EditionFeatureSetting", b =>
                 {
                     b.HasOne("Abp.Application.Editions.Edition", "Edition")
@@ -3283,6 +3270,8 @@ namespace ArabianCo.Migrations
 
             modelBuilder.Entity("ArabianCo.Domain.Categories.Category", b =>
                 {
+                    b.Navigation("Attributes");
+
                     b.Navigation("Translations");
                 });
 

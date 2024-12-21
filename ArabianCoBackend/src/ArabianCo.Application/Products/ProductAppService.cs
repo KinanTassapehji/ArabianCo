@@ -156,8 +156,8 @@ public class ProductAppService : ArabianCoAsyncCrudAppService<Product, ProductDt
         if (input.IsSpecial.HasValue)
             data = data.Where(x => x.IsSpecial == input.IsSpecial);
         data = data.Include(x => x.Translations);
-        data = data.Include(c => c.Category.Translations).IgnoreQueryFilters();
-        data = data.Include(x => x.Brand.Translations).IgnoreQueryFilters();
+        data = data.Include(c => c.Category.Translations);
+        data = data.Include(x => x.Brand.Translations);
         if (!input.Keyword.IsNullOrEmpty())
         {
             data = data.Where(x => x.Translations.Any(p => p.Description.Contains(input.Keyword)) || x.Brand.Translations.Any(b => b.Name == input.Keyword) || x.Category.Translations.Any(x => x.Name == input.Keyword));
