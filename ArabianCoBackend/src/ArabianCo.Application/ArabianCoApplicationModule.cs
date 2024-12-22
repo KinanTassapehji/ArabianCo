@@ -137,7 +137,8 @@ namespace ArabianCo
 
                 #region Product
                 configuration.CreateMultiLingualMap<Product, ProductTranslation, LiteProductDto>(context).TranslationMap
-                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
                 configuration.CreateMultiLingualMap<Product, ProductTranslation, ProductDto>(context).TranslationMap
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
                 configuration.CreateMultiLingualMap<AttributeValue, AttributeValueTranslation, AttributValueDto>(context).TranslationMap

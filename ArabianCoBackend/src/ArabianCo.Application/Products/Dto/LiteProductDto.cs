@@ -3,8 +3,9 @@ using System.Collections.Generic;
 
 namespace ArabianCo.Products.Dto;
 
-public class LiteProductDto:EntityDto
+public class LiteProductDto : EntityDto
 {
+    public string Name { get; set; }
     public string ModelNumber { get; set; }
     public string Description { get; set; }
     public bool IsActive { get; set; }
