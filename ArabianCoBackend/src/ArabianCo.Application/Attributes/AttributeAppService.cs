@@ -43,12 +43,13 @@ public class AttributeAppService : ArabianCoAsyncCrudAppService<Attribute, Attri
     public override async Task<AttributeDto> UpdateAsync(UpdateAttributeDto input)
     {
         List<Category> categories = await _categoryManger.GetAllByListIdsAsync(input.CategoryIds);
-        var entity = await Repository.GetAll().Include(x => x.Translations).FirstOrDefaultAsync(x => x.Id == input.Id);
+        var entity = await Repository.GetAll().Include(x => x.Translations).Include(x => x.Categories).FirstOrDefaultAsync(x => x.Id == input.Id);
         entity.Translations.Clear();
         entity.Categories.Clear();
         await CurrentUnitOfWork.SaveChangesAsync();
         MapToEntity(input, entity);
         entity.Categories = categories;
+        await Repository.UpdateAsync(entity);
         await CurrentUnitOfWork.SaveChangesAsync();
         return MapToEntityDto(entity);
     }
