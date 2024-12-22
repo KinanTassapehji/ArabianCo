@@ -4,7 +4,6 @@ using ArabianCo.Attributes.Dto;
 using ArabianCo.CrudAppServiceBase;
 using ArabianCo.Domain.Attributes;
 using ArabianCo.Domain.Categories;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
@@ -53,7 +52,6 @@ public class AttributeAppService : ArabianCoAsyncCrudAppService<Attribute, Attri
         await CurrentUnitOfWork.SaveChangesAsync();
         return MapToEntityDto(entity);
     }
-    [ApiExplorerSettings(IgnoreApi = true)]
     public override async Task<AttributeDto> GetAsync(EntityDto<int> input)
     {
         var entity = await _attributeManger.GetEntityByIdAsync(input.Id);
