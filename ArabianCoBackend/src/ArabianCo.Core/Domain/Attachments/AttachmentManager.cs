@@ -57,7 +57,7 @@ internal class AttachmentManager : DomainService, IAttachmentManager
                 $"Id: {attachment.Id}, RefType: {attachment.RefType}");
 
         attachment.RefId = refId;
-        if(color != null)
+        if (color != null)
             attachment.Color = color;
         await _repository.UpdateAsync(attachment);
     }
@@ -66,7 +66,7 @@ internal class AttachmentManager : DomainService, IAttachmentManager
     {
         //Check if type is correct and update refId
         var attachment = await GetAndCheckAsync(id, refType);
-        await UpdateRefIdAsync(attachment, refId,color);
+        await UpdateRefIdAsync(attachment, refId, color);
 
         return attachment;
     }
@@ -123,11 +123,13 @@ internal class AttachmentManager : DomainService, IAttachmentManager
                 return ImagesAcceptedTypes;
 
             case AttachmentRefType.Product:
-                 return ImagesAcceptedTypes;
+                return ImagesAcceptedTypes;
             case AttachmentRefType.MaintenanceRequests:
-                    return ImagesAcceptedTypes;
+                return ImagesAcceptedTypes;
             case AttachmentRefType.AboutUs:
-                    return ImagesAcceptedTypes;
+                return ImagesAcceptedTypes;
+            case AttachmentRefType.CategoryIcon:
+                return ImagesAcceptedTypes;
         }
 
         return new AttachmentType[] { };

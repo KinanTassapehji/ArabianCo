@@ -11,4 +11,5 @@ public class LiteCategoryDto : EntityDto<int>
     public bool IsParent { get; set; }
     public List<CategoryTranslationDto> Translations { get; set; }
     public LiteAttachmentDto Photo { get; set; }
+    public LiteAttachmentDto Icon { get; set; }
 }

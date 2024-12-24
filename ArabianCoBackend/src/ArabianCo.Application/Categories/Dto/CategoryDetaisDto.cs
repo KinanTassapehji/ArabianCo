@@ -12,4 +12,5 @@ public class CategoryDetaisDto : EntityDto
     public List<LiteCategoryDto> SubCategories { get; set; } = new List<LiteCategoryDto>();
     public List<CategoryTranslationDto> Translations { get; set; }
     public LiteAttachmentDto Photo { get; set; }
+    public LiteAttachmentDto Icon { get; set; }
 }

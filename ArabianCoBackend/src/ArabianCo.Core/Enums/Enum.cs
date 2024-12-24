@@ -16,6 +16,7 @@ public class Enum
         ProductCover = 4,
         MaintenanceRequests = 5,
         AboutUs = 6,
+        CategoryIcon = 7
     }
     public enum AttachmentType : byte
     {
@@ -34,7 +35,7 @@ public class Enum
         PNG = 2,
         JPG = 3
     }
-    public enum MaintenanceRequestsStatus: byte
+    public enum MaintenanceRequestsStatus : byte
     {
         Pending = 1,
         Approved = 2,
