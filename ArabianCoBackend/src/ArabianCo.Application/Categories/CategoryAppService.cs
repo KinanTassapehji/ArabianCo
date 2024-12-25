@@ -73,6 +73,29 @@ public class CategoryAppService : ArabianCoAsyncCrudAppService<Category, Categor
         if (result.IsParent)
         {
             result.SubCategories = _mapper.Map<List<LiteCategoryDto>>(await _categoryManger.GetSubCategoriesByParentCategoryId(input.Id));
+            foreach (var subCategory in result.SubCategories)
+            {
+                var subCategoryPhoto = await _attachmentManager.GetAttachmentByRefAsync(subCategory.Id, Enums.Enum.AttachmentRefType.Category);
+                var subCategoryIcon = await _attachmentManager.GetAttachmentByRefAsync(subCategory.Id, Enums.Enum.AttachmentRefType.CategoryIcon);
+                if (subCategoryPhoto != null)
+                {
+                    subCategory.Photo = new Attachments.Dto.LiteAttachmentDto
+                    {
+                        Id = subCategoryPhoto.Id,
+                        Url = _attachmentManager.GetUrl(subCategoryPhoto),
+                        RefType = Enums.Enum.AttachmentRefType.Category
+                    };
+                }
+                if (subCategoryIcon != null)
+                {
+                    subCategory.Icon = new Attachments.Dto.LiteAttachmentDto
+                    {
+                        Id = subCategoryIcon.Id,
+                        Url = _attachmentManager.GetUrl(subCategoryIcon),
+                        RefType = Enums.Enum.AttachmentRefType.CategoryIcon
+                    };
+                }
+            }
         }
         var photo = await _attachmentManager.GetAttachmentByRefAsync(entity.Id, Enums.Enum.AttachmentRefType.Category);
         var icon = await _attachmentManager.GetAttachmentByRefAsync(entity.Id, Enums.Enum.AttachmentRefType.CategoryIcon);
