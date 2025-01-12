@@ -1,11 +1,11 @@
-﻿using Abp.Domain.Repositories;
+﻿using Abp.Domain.Entities;
+using Abp.Domain.Repositories;
 using Abp.Domain.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
-using System.Linq;
-using Abp.Domain.Entities;
 
 namespace ArabianCo.Domain.Categories;
 
@@ -37,12 +37,12 @@ internal class CategoryManger : DomainService, ICategoryManger
 
     public async Task<List<Category>> GetAllByListIdsAsync(List<int> ids)
     {
-        var result = await _categoryRepository.GetAll().Where(x=>ids.Contains(x.Id)).ToListAsync();
+        var result = await _categoryRepository.GetAll().Where(x => ids.Contains(x.Id)).ToListAsync();
         var foundIds = result.Select(x => x.Id).ToList();
         var missingIds = ids.Except(foundIds).ToList();
-        if(missingIds.Any())
+        if (missingIds.Any())
         {
-            throw new EntityNotFoundException(typeof(Category),missingIds.First());
+            throw new EntityNotFoundException(typeof(Category), missingIds.First());
         }
         return result;
     }
@@ -65,7 +65,7 @@ internal class CategoryManger : DomainService, ICategoryManger
 
     public Task<List<Category>> GetSubCategoriesByParentCategoryId(int parentCategoryId)
     {
-        return _categoryRepository.GetAll().Where(x=>x.ParentCategoryId == parentCategoryId).Include(x=>x.Translations).ToListAsync();
+        return _categoryRepository.GetAll().Where(x => x.ParentCategoryId == parentCategoryId).Include(x => x.Translations).ToListAsync();
     }
 
     public Task<int> InsertAndGetIdAsync(Category entity)
@@ -75,11 +75,16 @@ internal class CategoryManger : DomainService, ICategoryManger
 
     public async Task InsertAsync(Category entity)
     {
-         await _categoryRepository.InsertAsync(entity);
+        await _categoryRepository.InsertAsync(entity);
     }
 
     public async Task UpdateAsync(Category entity)
     {
         await _categoryRepository.UpdateAsync(entity);
+    }
+    public Task<List<Category>> GetCategoriesForProductAndAttribute()
+    {
+        var result = _categoryRepository.GetAll().Where(x => x.IsParent == false).Include(x => x.Translations).ToListAsync();
+        return result;
     }
 }

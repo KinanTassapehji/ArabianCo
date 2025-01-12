@@ -27,9 +27,6 @@ public class CategoryAppService : ArabianCoAsyncCrudAppService<Category, Categor
     }
     public override async Task<CategoryDetaisDto> CreateAsync(CreateCategoryDto input)
     {
-        //var transltion = ObjectMapper.Map<List<CategoryTranslation>>(input.Translations);
-        /* if (await _categoryManger.CheckIfCategoryIsExist(transltion))
-             throw new UserFriendlyException(string.Format(Exceptions.ObjectIsAlreadyExist, Tokens.Category));*/
         var entity = ObjectMapper.Map<Category>(input);
         var id = await _categoryManger.InsertAndGetIdAsync(entity);
         if (input.AttachmentId.HasValue)
@@ -148,6 +145,11 @@ public class CategoryAppService : ArabianCoAsyncCrudAppService<Category, Categor
         await _categoryManger.GetEntityByIdAsync(input.Id);
         await _categoryManger.DeleteAsync(input.Id);
     }
+    public async Task<List<IndexDto>> GetCategoriesForProductAndAttribute()
+    {
+        var categories = await _categoryManger.GetCategoriesForProductAndAttribute();
+        return _mapper.Map<List<IndexDto>>(categories);
+    }
     protected override IQueryable<Category> CreateFilteredQuery(PagedCategoryResultRequestDto input)
     {
         var data = base.CreateFilteredQuery(input);
@@ -158,4 +160,6 @@ public class CategoryAppService : ArabianCoAsyncCrudAppService<Category, Categor
         data = data.Include(x => x.Translations);
         return data;
     }
+
+
 }
