@@ -34,7 +34,7 @@ public class AboutUsAppService : ArabianCoAsyncCrudAppService<AboutUs, AboutUsDt
     public override async Task<PagedResultDto<AboutUsDto>> GetAllAsync(PagedAboutUsResultRequestDto input)
     {
         var result = await base.GetAllAsync(input);
-        foreach (var item in result.Items) 
+        foreach (var item in result.Items)
         {
             var photo = await _attachmentManager.GetByRefAsync(item.Id, Enums.Enum.AttachmentRefType.AboutUs);
             if (photo != null)
@@ -58,15 +58,15 @@ public class AboutUsAppService : ArabianCoAsyncCrudAppService<AboutUs, AboutUsDt
         {
             await _attachmentManager.DeleteRefIdAsync(photo);
         }
-        await _attachmentManager.CheckAndUpdateRefIdAsync(input.AttachmentId, Enums.Enum.AttachmentRefType.AboutUs,input.Id);
+        await _attachmentManager.CheckAndUpdateRefIdAsync(input.AttachmentId, Enums.Enum.AttachmentRefType.AboutUs, input.Id);
         var entityDto = await base.UpdateAsync(input);
         return entityDto;
     }
     public override async Task<AboutUsDto> GetAsync(EntityDto<int> input)
     {
-        var entityDto = MapToEntityDto( await _aboutUsManger.GetEntityByIdAsync(input.Id));
+        var entityDto = MapToEntityDto(await _aboutUsManger.GetEntityByIdAsync(input.Id));
         var photo = await _attachmentManager.GetByRefAsync(input.Id, Enums.Enum.AttachmentRefType.AboutUs);
-        if(photo != null)
+        if (photo != null)
         {
             entityDto.Photo = new Attachments.Dto.LiteAttachmentDto
             {
@@ -84,7 +84,7 @@ public class AboutUsAppService : ArabianCoAsyncCrudAppService<AboutUs, AboutUsDt
         var entity = await Repository.GetAsync(input.Id);
         if (entity != null)
         {
-            entity.IsActive =!entity.IsActive;
+            entity.IsActive = !entity.IsActive;
             await Repository.UpdateAsync(entity);
         }
         else
@@ -104,6 +104,12 @@ public class AboutUsAppService : ArabianCoAsyncCrudAppService<AboutUs, AboutUsDt
         {
             data = data.Where(x => x.IsActive);
         }
+        return data;
+    }
+    protected override IQueryable<AboutUs> ApplySorting(IQueryable<AboutUs> query, PagedAboutUsResultRequestDto input)
+    {
+        var data = base.ApplySorting(query, input);
+        data = data.OrderBy(x => x.Id);
         return data;
     }
 }
