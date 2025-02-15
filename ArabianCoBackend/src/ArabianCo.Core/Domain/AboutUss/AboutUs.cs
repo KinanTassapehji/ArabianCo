@@ -11,5 +11,6 @@ public class AboutUs : FullAuditedEntity, IMultiLingualEntity<AboutUsTranslation
         Translations = new HashSet<AboutUsTranslation>();
     }
     public bool IsActive { get; set; }
+    public int? ShowOrder { get; set; }
     public ICollection<AboutUsTranslation> Translations { get; set; }
 }
