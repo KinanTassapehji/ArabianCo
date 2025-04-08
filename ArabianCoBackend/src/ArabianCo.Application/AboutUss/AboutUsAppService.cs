@@ -109,7 +109,7 @@ public class AboutUsAppService : ArabianCoAsyncCrudAppService<AboutUs, AboutUsDt
     protected override IQueryable<AboutUs> ApplySorting(IQueryable<AboutUs> query, PagedAboutUsResultRequestDto input)
     {
         var data = base.ApplySorting(query, input);
-        data = data.OrderByDescending(x => x.ShowOrder);
+        data = data.OrderBy(x => x.ShowOrder);
         return data;
     }
 }

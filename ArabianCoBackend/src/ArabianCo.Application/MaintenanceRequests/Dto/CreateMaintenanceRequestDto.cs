@@ -1,14 +1,11 @@
 ﻿using Abp.Authorization.Users;
-using static ArabianCo.Enums.Enum;
 using System.ComponentModel.DataAnnotations;
+using static ArabianCo.Enums.Enum;
 
 namespace ArabianCo.MaintenanceRequests.Dto;
 
 public class CreateMaintenanceRequestDto
 {
-    [Required]
-    [EmailAddress]
-    [StringLength(AbpUserBase.MaxEmailAddressLength)]
     public string Email { get; set; }
     [Required]
     [StringLength(AbpUserBase.MaxNameLength)]
