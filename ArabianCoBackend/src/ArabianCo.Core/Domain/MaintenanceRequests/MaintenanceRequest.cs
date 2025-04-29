@@ -9,7 +9,7 @@ using static ArabianCo.Enums.Enum;
 
 namespace ArabianCo.Domain.MaintenanceRequests;
 
-public class MaintenanceRequest:FullAuditedEntity
+public class MaintenanceRequest : FullAuditedEntity
 {
     [Required]
     [EmailAddress]
@@ -19,9 +19,10 @@ public class MaintenanceRequest:FullAuditedEntity
     [StringLength(AbpUserBase.MaxNameLength)]
     public string FullName { get; set; }
     [Required]
-    [StringLength (AbpUserBase.MaxPhoneNumberLength)]
+    [StringLength(AbpUserBase.MaxPhoneNumberLength)]
     public string PhoneNumber { get; set; }
     public string SerialNumber { get; set; }
+    public string ModelNumber { get; set; }
     public string Problem { get; set; }
     public string Address { get; set; }
     public MaintenanceRequestsStatus Status { get; set; }
@@ -33,7 +34,7 @@ public class MaintenanceRequest:FullAuditedEntity
     public virtual Area Area { get; set; }
     [Required]
     public int BrandId { get; set; }
-    [ForeignKey(nameof (BrandId))]
+    [ForeignKey(nameof(BrandId))]
     public virtual Brand Brand { get; set; }
     [Required]
     public int CategoryId { get; set; }

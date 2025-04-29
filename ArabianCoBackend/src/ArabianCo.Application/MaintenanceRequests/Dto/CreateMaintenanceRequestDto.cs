@@ -14,6 +14,7 @@ public class CreateMaintenanceRequestDto
     [StringLength(AbpUserBase.MaxPhoneNumberLength)]
     public string PhoneNumber { get; set; }
     public string SerialNumber { get; set; }
+    public string ModelNumber { get; set; }
     public string Problem { get; set; }
     public MaintenanceRequestsStatus Status { get; set; }
     [Required]

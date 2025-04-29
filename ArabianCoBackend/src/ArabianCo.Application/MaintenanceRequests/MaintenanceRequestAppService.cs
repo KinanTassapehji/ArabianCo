@@ -1,12 +1,16 @@
 ﻿using Abp.Application.Services.Dto;
 using Abp.Authorization;
 using Abp.Domain.Repositories;
+using Abp.Extensions;
 using ArabianCo.CrudAppServiceBase;
 using ArabianCo.Domain.Attachments;
 using ArabianCo.Domain.MaintenanceRequests;
+using ArabianCo.EmailAppService;
 using ArabianCo.MaintenanceRequests.Dto;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -16,9 +20,11 @@ public class MaintenanceRequestAppService : ArabianCoAsyncCrudAppService<Mainten
 {
     //private readonly IMaintenanceRequestsManger _maintenanceRequestsManger;
     private readonly IAttachmentManager _attachmentManager;
-    public MaintenanceRequestAppService(IRepository<MaintenanceRequest, int> repository /*IMaintenanceRequestsManger maintenanceRequestsManger*/, IAttachmentManager attachmentManager) : base(repository)
+    private readonly IEmailService _emailService;
+    public MaintenanceRequestAppService(IRepository<MaintenanceRequest, int> repository /*IMaintenanceRequestsManger maintenanceRequestsManger*/, IAttachmentManager attachmentManager, IEmailService emailService) : base(repository)
     {
         _attachmentManager = attachmentManager;
+        _emailService = emailService;
         /*_maintenanceRequestsManger = maintenanceRequestsManger;*/
     }
     public async override Task<MaintenanceRequestDto> CreateAsync(CreateMaintenanceRequestDto input)
@@ -27,14 +33,36 @@ public class MaintenanceRequestAppService : ArabianCoAsyncCrudAppService<Mainten
         await CurrentUnitOfWork.SaveChangesAsync();
         if (input.AttachmentId.HasValue)
             await _attachmentManager.CheckAndUpdateRefIdAsync(input.AttachmentId.Value, Enums.Enum.AttachmentRefType.MaintenanceRequests, result.Id);
+        try
+        {
+            if (!input.Email.IsNullOrEmpty())
+            {
+                var mailAddress = new System.Net.Mail.MailAddress(input.Email);
+                await _emailService.SendEmailAsync(new List<string>
+        {
+            input.Email,
+        }, "العربية الدولية للأجهزة،نشكر تواصلكم.", "تم رفع طلب الصيانة بنجاح ، \r\nستصلكم رسالة نصية قبل الموعد بيوم لتأكيد الفترة.\r\nيرجى التواجد في الموقع، مع إمكانية تقديم الموعد في حال توفرت إمكانية.\r\n\r\n*للتواصل والاستفسار يرجى التواصل عبر الرقم الموحد*\r\n8001244080");
+            }
+            await _emailService.SendEmailAsync(new List<string>
+        { "aftersales11@arabianco.com", "aftersales14@arabianco.com", "aftersales9@arabianco.com","mohamad.ali.alkhabbaz@gmail.com" },
+            "New Maintenance Request",
+            $"Client Name: {input.FullName} \r\nPhone: {input.PhoneNumber}\r\nSerial Number:{input.SerialNumber}\r\nProblem: {input.Problem}"
+            );
+        }
+        catch (Exception e)
+        {
+
+        }
+
+
         return result;
     }
     [AbpAuthorize]
     public override async Task<MaintenanceRequestDto> GetAsync(EntityDto<int> input)
     {
         var entity = await Repository.GetAll().Where(x => x.Id == input.Id)
-            .Include(x => x.Brand).ThenInclude(x=>x.Translations)
-            .Include(x => x.Category).ThenInclude(x=>x.Translations)
+            .Include(x => x.Brand).ThenInclude(x => x.Translations)
+            .Include(x => x.Category).ThenInclude(x => x.Translations)
             .Include(x => x.Area).ThenInclude(x => x.Translations)
             .Include(x => x.Area.City).ThenInclude(x => x.Translations)
             .Include(x => x.Area.City.Country).ThenInclude(x => x.Translations).FirstOrDefaultAsync();
@@ -55,9 +83,9 @@ public class MaintenanceRequestAppService : ArabianCoAsyncCrudAppService<Mainten
     {
         return base.UpdateAsync(input);
     }
-    [ApiExplorerSettings(IgnoreApi = true)]
-    public override Task DeleteAsync(EntityDto<int> input)
+    public override async Task DeleteAsync(EntityDto<int> input)
     {
-        return base.DeleteAsync(input);
+        await _attachmentManager.DeleteAllRefIdAsync(input.Id, Enums.Enum.AttachmentRefType.MaintenanceRequests);
+        await base.DeleteAsync(input);
     }
 }

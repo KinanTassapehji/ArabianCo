@@ -28,7 +28,7 @@ public class QuestionAppService : ArabianCoAsyncCrudAppService<Question, Questio
     {
         var data = base.CreateFilteredQuery(input);
         if (input.IsRead.HasValue)
-            data = data.Where(x=>x.IsRead == input.IsRead.Value);
+            data = data.Where(x => x.IsRead == input.IsRead.Value);
         return data;
     }
     protected override IQueryable<Question> ApplySorting(IQueryable<Question> query, PagedQuestionResultRequest input)
@@ -43,7 +43,6 @@ public class QuestionAppService : ArabianCoAsyncCrudAppService<Question, Questio
     {
         return base.UpdateAsync(input);
     }
-    [ApiExplorerSettings(IgnoreApi = true)]
     public override Task DeleteAsync(EntityDto<int> input)
     {
         return base.DeleteAsync(input);
