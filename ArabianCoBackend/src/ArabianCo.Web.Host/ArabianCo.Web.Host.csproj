@@ -45,6 +45,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Properties\PublishProfiles\" />
     <Folder Include="wwwroot\Uploads\Attachments\" />
   </ItemGroup>
 </Project>
