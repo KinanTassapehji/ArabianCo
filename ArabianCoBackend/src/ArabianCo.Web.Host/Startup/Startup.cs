@@ -4,9 +4,12 @@ using Abp.AspNetCore.SignalR.Hubs;
 using Abp.Castle.Logging.Log4Net;
 using Abp.Dependency;
 using Abp.Json;
+
 using ArabianCo.Configuration;
 using ArabianCo.Identity;
+
 using Castle.Facilities.Logging;
+
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -14,7 +17,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+
 using Newtonsoft.Json.Serialization;
+
 using System;
 using System.IO;
 using System.Reflection;
@@ -164,7 +169,7 @@ namespace ArabianCo.Web.Host.Startup
                 });
 
                 //add summaries to swagger
-                bool canShowSummaries = _appConfiguration.GetValue<bool>("Swagger:ShowSummaries");
+                var canShowSummaries = _appConfiguration.GetValue<bool>("Swagger:ShowSummaries");
                 if (canShowSummaries)
                 {
                     var hostXmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
