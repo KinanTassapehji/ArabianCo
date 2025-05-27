@@ -144,4 +144,7 @@
   <data name="YourPhoneNumberIsnotVerified" xml:space="preserve">
     <value>Your phone number is not verified</value>
   </data>
+  <data name="AlreadyHaveRequest" xml:space="preserve">
+    <value>You already sent a maintenance request less than an hour ago</value>
+  </data>
 </root>

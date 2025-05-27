@@ -144,4 +144,7 @@
   <data name="YourPhoneNumberIsnotVerified" xml:space="preserve">
     <value>لم يتم التحقق من رقم هاتفك</value>
   </data>
+  <data name="AlreadyHaveRequest" xml:space="preserve">
+    <value>لقد قمت بإرسال طلب صيانة قبل أقل من ساعة</value>
+  </data>
 </root>

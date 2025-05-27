@@ -33,7 +33,7 @@ public class EmailService : ApplicationService, IEmailService
 
         var mail = new MailMessage
         {
-            From = new MailAddress("maintenance@arabianco.com"),
+            From = new MailAddress("support@arabianco.com"),
             Subject = title,
             Body = body,
         };

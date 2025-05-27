@@ -1,5 +1,6 @@
 ﻿using Abp.Application.Services.Dto;
 using ArabianCo.Attachments.Dto;
+using System;
 
 namespace ArabianCo.MaintenanceRequests.Dto;
 
@@ -11,4 +12,6 @@ public class LiteMaintenanceRequestDto:EntityDto
     public string SerialNumber { get; set; }
     public string Problem { get; set; }
     public bool IsInWarrantyPeriod { get; set; }
+    public DateTime CreationTime { get; set; }
+
 }

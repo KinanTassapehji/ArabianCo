@@ -1,7 +1,12 @@
 ﻿using Abp.Application.Services.Dto;
 using Abp.Authorization;
+using Abp.AutoMapper;
 using Abp.Domain.Repositories;
 using Abp.Extensions;
+using Abp.Timing;
+using Abp.UI;
+using ArabianCo.Areas.Dto;
+using ArabianCo.Cities.Dto;
 using ArabianCo.CrudAppServiceBase;
 using ArabianCo.Domain.Attachments;
 using ArabianCo.Domain.MaintenanceRequests;
@@ -29,6 +34,14 @@ public class MaintenanceRequestAppService : ArabianCoAsyncCrudAppService<Mainten
     }
     public async override Task<MaintenanceRequestDto> CreateAsync(CreateMaintenanceRequestDto input)
     {
+        //for one item (with same brand and same category), same user (by phone number) is now allowed to create more than one request for an hour
+        if (await Repository.GetAll()
+                            .Where(r => r.PhoneNumber == input.PhoneNumber)
+                            .Where(r => r.CreationTime < DateTime.Now.AddDays(-1))
+                            .AnyAsync())
+        {
+            throw new UserFriendlyException("Only one request allowed a day");
+        }
         var result = await base.CreateAsync(input);
         await CurrentUnitOfWork.SaveChangesAsync();
         if (input.AttachmentId.HasValue)
@@ -46,7 +59,7 @@ public class MaintenanceRequestAppService : ArabianCoAsyncCrudAppService<Mainten
             await _emailService.SendEmailAsync(new List<string>
         { "aftersales11@arabianco.com", "aftersales14@arabianco.com", "aftersales9@arabianco.com","mohamad.ali.alkhabbaz@gmail.com" },
             "New Maintenance Request",
-            $"Client Name: {input.FullName} \r\nPhone: {input.PhoneNumber}\r\nSerial Number:{input.SerialNumber}\r\nProblem: {input.Problem}"
+            $"Client Name: {input.FullName} \r\nPhone: {input.PhoneNumber}\r\nSerial Number:{input.SerialNumber}\r\nProblem: {input.Problem}\r\n At: {Clock.Now}"
             );
         }
         catch (Exception e)
@@ -63,11 +76,21 @@ public class MaintenanceRequestAppService : ArabianCoAsyncCrudAppService<Mainten
         var entity = await Repository.GetAll().Where(x => x.Id == input.Id)
             .Include(x => x.Brand).ThenInclude(x => x.Translations)
             .Include(x => x.Category).ThenInclude(x => x.Translations)
+            .Include(x => x.City).ThenInclude(x => x.Translations)
             .Include(x => x.Area).ThenInclude(x => x.Translations)
             .Include(x => x.Area.City).ThenInclude(x => x.Translations)
             .Include(x => x.Area.City.Country).ThenInclude(x => x.Translations).FirstOrDefaultAsync();
         var attachment = await _attachmentManager.GetAttachmentByRefAsync(entity.Id, Enums.Enum.AttachmentRefType.MaintenanceRequests);
         var result = MapToEntityDto(entity);
+        result.Area = entity.AreaId.HasValue ?
+                      entity.Area.MapTo<AreaDetailsDto>() :
+                      new AreaDetailsDto
+                      {
+                          Name = entity.OtherArea,
+                          Id = -1,
+                          City = entity.City.MapTo<LiteCityDto>()
+                      };
+
         if (attachment != null)
             result.Attachment = new Attachments.Dto.LiteAttachmentDto
             {

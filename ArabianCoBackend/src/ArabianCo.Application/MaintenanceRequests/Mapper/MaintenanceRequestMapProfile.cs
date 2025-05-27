@@ -11,6 +11,8 @@ internal class MaintenanceRequestMapProfile:Profile
         CreateMap<CreateMaintenanceRequestDto, MaintenanceRequest>();
         CreateMap<UpdateMaintenanceRequestDto, MaintenanceRequest>();
         CreateMap<MaintenanceRequest, LiteMaintenanceRequestDto>();
-        CreateMap<MaintenanceRequest, MaintenanceRequestDto>();
+        CreateMap<MaintenanceRequest, MaintenanceRequestDto>()
+            .ForMember(src=>src.Area, destinationMember => destinationMember.Ignore())
+            ;
     }
 }

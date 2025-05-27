@@ -3,6 +3,7 @@ using Abp.Domain.Entities.Auditing;
 using ArabianCo.Domain.Areas;
 using ArabianCo.Domain.Brands;
 using ArabianCo.Domain.Categories;
+using ArabianCo.Domain.Cities;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using static ArabianCo.Enums.Enum;
@@ -28,8 +29,8 @@ public class MaintenanceRequest : FullAuditedEntity
     public MaintenanceRequestsStatus Status { get; set; }
     [Required]
     public bool IsInWarrantyPeriod { get; set; }
-    [Required]
-    public int AreaId { get; set; }
+
+    public int? AreaId { get; set; }
     [ForeignKey(nameof(AreaId))]
     public virtual Area Area { get; set; }
     [Required]
@@ -40,4 +41,11 @@ public class MaintenanceRequest : FullAuditedEntity
     public int CategoryId { get; set; }
     [ForeignKey(nameof(CategoryId))]
     public virtual Category Category { get; set; }
+
+    public string OtherArea { get; set; }
+
+    public int? CityId { get; set; }
+
+    [ForeignKey(nameof(CityId))]
+    public virtual City City { get; set; }
 }
