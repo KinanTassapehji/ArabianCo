@@ -15,7 +15,8 @@ public class CreateMaintenanceRequestDto : IValidatableObject, IShouldInitialize
     [StringLength(AbpUserBase.MaxNameLength)]
     public string FullName { get; set; }
     [Required]
-    [StringLength(AbpUserBase.MaxPhoneNumberLength)]
+    [MaxLength(10)]
+    [MinLength(10)]
     public string PhoneNumber { get; set; }
     public string SerialNumber { get; set; }
     public string ModelNumber { get; set; }
