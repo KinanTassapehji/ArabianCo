@@ -25,6 +25,7 @@ public class CreateMaintenanceRequestDto : IValidatableObject, IShouldInitialize
     public bool IsInWarrantyPeriod { get; set; }
 
     public string OtherArea { get; set; }
+    public string OtherCity { get; set; }
     public int? AreaId { get; set; }
     public int? CityId { get; set; }
 
@@ -47,10 +48,27 @@ public class CreateMaintenanceRequestDto : IValidatableObject, IShouldInitialize
         }
     }
 
-    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-    {
-        if (!AreaId.HasValue)
-            if (!CityId.HasValue || OtherArea.IsNullOrEmpty())
-                yield return new ValidationResult("Area is Required", new List<string> { nameof(OtherArea), nameof(AreaId) });
-    }
+	public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+	{
+		// Validate Area: require either AreaId or OtherArea
+		bool hasValidArea = AreaId.HasValue || !OtherArea.IsNullOrWhiteSpace();
+		if (!hasValidArea)
+		{
+			yield return new ValidationResult(
+				"Area is Required",
+				new[] { nameof(AreaId), nameof(OtherArea) }
+			);
+		}
+
+		// Validate City: require either CityId or OtherCity
+		bool hasValidCity = CityId.HasValue || !OtherCity.IsNullOrWhiteSpace();
+		if (!hasValidCity)
+		{
+			yield return new ValidationResult(
+				"City is Required",
+				new[] { nameof(CityId), nameof(OtherCity) }
+			);
+		}
+	}
+
 }
