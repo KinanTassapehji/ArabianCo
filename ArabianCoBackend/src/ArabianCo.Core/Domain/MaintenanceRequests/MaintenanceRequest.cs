@@ -43,7 +43,6 @@ public class MaintenanceRequest : FullAuditedEntity
     public virtual Category Category { get; set; }
 
     public string OtherArea { get; set; }
-    public string OtherCity { get; set; }
 
     public int? CityId { get; set; }
 
