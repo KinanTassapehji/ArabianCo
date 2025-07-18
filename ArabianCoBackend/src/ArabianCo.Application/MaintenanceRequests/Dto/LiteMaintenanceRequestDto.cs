@@ -13,5 +13,5 @@ public class LiteMaintenanceRequestDto:EntityDto
     public string Problem { get; set; }
     public bool IsInWarrantyPeriod { get; set; }
     public DateTime CreationTime { get; set; }
-
+	public string Address { get; set; }
 }

@@ -12,6 +12,7 @@ using ArabianCo.Domain.Attachments;
 using ArabianCo.Domain.MaintenanceRequests;
 using ArabianCo.EmailAppService;
 using ArabianCo.MaintenanceRequests.Dto;
+using ArabianCo.Products.Dto;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -101,7 +102,12 @@ public class MaintenanceRequestAppService : ArabianCoAsyncCrudAppService<Mainten
             };
         return result;
     }
-    [ApiExplorerSettings(IgnoreApi = true)]
+	[AbpAllowAnonymous]
+	public override async Task<PagedResultDto<LiteMaintenanceRequestDto>> GetAllAsync(PagedMaintenanceRequestResultDto input)
+	{
+		return await base.GetAllAsync(input);
+	}
+	[ApiExplorerSettings(IgnoreApi = true)]
     public override Task<MaintenanceRequestDto> UpdateAsync(UpdateMaintenanceRequestDto input)
     {
         return base.UpdateAsync(input);
@@ -111,4 +117,15 @@ public class MaintenanceRequestAppService : ArabianCoAsyncCrudAppService<Mainten
         await _attachmentManager.DeleteAllRefIdAsync(input.Id, Enums.Enum.AttachmentRefType.MaintenanceRequests);
         await base.DeleteAsync(input);
     }
+	protected override IQueryable<MaintenanceRequest> CreateFilteredQuery(PagedMaintenanceRequestResultDto input)
+	{
+		var query = Repository.GetAll();
+
+		if (!input.phoneNumber.IsNullOrWhiteSpace())
+		{
+			query = query.Where(x => x.PhoneNumber.Equals(input.phoneNumber));
+		}
+
+		return query;
+	}
 }
