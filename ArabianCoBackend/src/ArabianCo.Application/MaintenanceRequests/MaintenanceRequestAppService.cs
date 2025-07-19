@@ -100,7 +100,7 @@ public class MaintenanceRequestAppService : ArabianCoAsyncCrudAppService<Mainten
             };
         return result;
     }
-	[AbpAllowAnonymous]
+	[AbpAuthorize]
 	public override async Task<PagedResultDto<LiteMaintenanceRequestDto>> GetAllAsync(PagedMaintenanceRequestResultDto input)
 	{
 		return await base.GetAllAsync(input);
