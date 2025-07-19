@@ -67,11 +67,9 @@ public class MaintenanceRequestAppService : ArabianCoAsyncCrudAppService<Mainten
         {
 
         }
-
-
-        return result;
-    }
-    [AbpAuthorize]
+		return await GetAsync(new EntityDto<int>(result.Id));
+	}
+	[AbpAuthorize]
     public override async Task<MaintenanceRequestDto> GetAsync(EntityDto<int> input)
     {
         var entity = await Repository.GetAll().Where(x => x.Id == input.Id)
