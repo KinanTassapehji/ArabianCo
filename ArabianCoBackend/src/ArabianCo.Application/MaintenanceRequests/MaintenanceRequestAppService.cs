@@ -106,6 +106,20 @@ public class MaintenanceRequestAppService : ArabianCoAsyncCrudAppService<Mainten
 	{
 		return await base.GetAllAsync(input);
 	}
+
+	protected override LiteMaintenanceRequestDto MapToLiteEntityDto(MaintenanceRequest entity)
+	{
+		var dto = base.MapToLiteEntityDto(entity);
+		if (entity.CityId.HasValue && entity.City != null)
+		{
+			dto.CityName = entity.City.MapTo<LiteCityDto>().Name;
+		}
+		else
+		{
+			dto.CityName = entity.OtherCity;
+		}
+		return dto;
+	}
 	[ApiExplorerSettings(IgnoreApi = true)]
     public override Task<MaintenanceRequestDto> UpdateAsync(UpdateMaintenanceRequestDto input)
     {
@@ -118,7 +132,8 @@ public class MaintenanceRequestAppService : ArabianCoAsyncCrudAppService<Mainten
     }
 	protected override IQueryable<MaintenanceRequest> CreateFilteredQuery(PagedMaintenanceRequestResultDto input)
 	{
-		var query = Repository.GetAll();
+		IQueryable<MaintenanceRequest> query = Repository.GetAll()
+			.Include(x => x.City).ThenInclude(x => x.Translations);
 
 		if (!input.phoneNumber.IsNullOrWhiteSpace())
 		{
