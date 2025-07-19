@@ -14,4 +14,7 @@ public class LiteMaintenanceRequestDto:EntityDto
     public bool IsInWarrantyPeriod { get; set; }
     public DateTime CreationTime { get; set; }
 	public string Address { get; set; }
+	public int? CityId { get; set; }
+	public string OtherCity { get; set; }
+
 }
