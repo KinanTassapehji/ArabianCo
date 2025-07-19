@@ -33,7 +33,8 @@ public class MaintenanceRequestAppService : ArabianCoAsyncCrudAppService<Mainten
         _emailService = emailService;
         /*_maintenanceRequestsManger = maintenanceRequestsManger;*/
     }
-    public async override Task<MaintenanceRequestDto> CreateAsync(CreateMaintenanceRequestDto input)
+	[AbpAllowAnonymous]
+	public async override Task<MaintenanceRequestDto> CreateAsync(CreateMaintenanceRequestDto input)
     {
         // prevent creating more than one request within a 24-hour period for the same phone number
         if (await Repository.GetAll()
@@ -69,7 +70,7 @@ public class MaintenanceRequestAppService : ArabianCoAsyncCrudAppService<Mainten
         }
 		return await GetAsync(new EntityDto<int>(result.Id));
 	}
-	[AbpAuthorize]
+	[AbpAllowAnonymous]
     public override async Task<MaintenanceRequestDto> GetAsync(EntityDto<int> input)
     {
         var entity = await Repository.GetAll().Where(x => x.Id == input.Id)
@@ -100,7 +101,7 @@ public class MaintenanceRequestAppService : ArabianCoAsyncCrudAppService<Mainten
             };
         return result;
     }
-	[AbpAuthorize]
+	[AbpAllowAnonymous]
 	public override async Task<PagedResultDto<LiteMaintenanceRequestDto>> GetAllAsync(PagedMaintenanceRequestResultDto input)
 	{
 		return await base.GetAllAsync(input);
@@ -121,7 +122,7 @@ public class MaintenanceRequestAppService : ArabianCoAsyncCrudAppService<Mainten
 
 		if (!input.phoneNumber.IsNullOrWhiteSpace())
 		{
-			query = query.Where(x => x.PhoneNumber.Equals(input.phoneNumber));
+			query = query.Where(x => x.PhoneNumber.Contains(input.phoneNumber));
 		}
 
 		return query;
