@@ -35,10 +35,10 @@ public class MaintenanceRequestAppService : ArabianCoAsyncCrudAppService<Mainten
     }
     public async override Task<MaintenanceRequestDto> CreateAsync(CreateMaintenanceRequestDto input)
     {
-        //for one item (with same brand and same category), same user (by phone number) is now allowed to create more than one request for an hour
+        // prevent creating more than one request within a 24-hour period for the same phone number
         if (await Repository.GetAll()
                             .Where(r => r.PhoneNumber == input.PhoneNumber)
-                            .Where(r => r.CreationTime < DateTime.Now.AddDays(-1))
+                            .Where(r => r.CreationTime > DateTime.Now.AddDays(-1))
                             .AnyAsync())
         {
             throw new UserFriendlyException("Only one request allowed a day");
