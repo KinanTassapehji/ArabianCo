@@ -59,9 +59,10 @@ public class MaintenanceRequestAppService : ArabianCoAsyncCrudAppService<Mainten
         }, "العربية الدولية للأجهزة،نشكر تواصلكم.", "تم رفع طلب الصيانة بنجاح ، \r\nستصلكم رسالة نصية قبل الموعد بيوم لتأكيد الفترة.\r\nيرجى التواجد في الموقع، مع إمكانية تقديم الموعد في حال توفرت إمكانية.\r\n\r\n*للتواصل والاستفسار يرجى التواصل عبر الرقم الموحد*\r\n8001244080");
             }
             await _emailService.SendEmailAsync(new List<string>
-        { "aftersales11@arabianco.com", "aftersales14@arabianco.com", "aftersales9@arabianco.com","mohamad.ali.alkhabbaz@gmail.com" },
+        { "aftersales11@arabianco.com", "aftersales14@arabianco.com", "aftersales9@arabianco.com"/*, "malaz.tassapehji@gmail.com"*/},
             "New Maintenance Request",
-            $"Client Name: {input.FullName} \r\nPhone: {input.PhoneNumber}\r\nSerial Number:{input.SerialNumber}\r\nProblem: {input.Problem}\r\n At: {Clock.Now}"
+            //$"Client Name: {input.FullName} \r\nPhone: {input.PhoneNumber}\r\nSerial Number:{input.SerialNumber}\r\nProblem: {input.Problem}\r\n At: {Clock.Now}"
+            $"Client Name: {input.FullName} \r\nPhone: {input.PhoneNumber}\r\nSerial Number:{input.SerialNumber}\r\nProblem: {input.Problem}\r\n At: {result.CreationTime}"
             );
         }
         catch (Exception e)
@@ -131,11 +132,11 @@ public class MaintenanceRequestAppService : ArabianCoAsyncCrudAppService<Mainten
         await base.DeleteAsync(input);
     }
 	protected override IQueryable<MaintenanceRequest> CreateFilteredQuery(PagedMaintenanceRequestResultDto input)
-	{
-		IQueryable<MaintenanceRequest> query = Repository.GetAll()
-			.Include(x => x.City).ThenInclude(x => x.Translations);
-
-		if (!input.phoneNumber.IsNullOrWhiteSpace())
+    {
+        IQueryable<MaintenanceRequest> query = Repository.GetAll()
+            .Include(x => x.City).ThenInclude(x => x.Translations);
+        //var query = Repository.GetAll();
+        if (!input.phoneNumber.IsNullOrWhiteSpace())
 		{
 			query = query.Where(x => x.PhoneNumber.Contains(input.phoneNumber));
 		}
