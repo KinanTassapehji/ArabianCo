@@ -44,7 +44,7 @@ public class MaintenanceRequestAppService : ArabianCoAsyncCrudAppService<Mainten
         {
             throw new UserFriendlyException("Only one request allowed a day");
         }
-        var result = await base.CreateAsync(input);
+		var result = await base.CreateAsync(input);
         await CurrentUnitOfWork.SaveChangesAsync();
         if (input.AttachmentId.HasValue)
             await _attachmentManager.CheckAndUpdateRefIdAsync(input.AttachmentId.Value, Enums.Enum.AttachmentRefType.MaintenanceRequests, result.Id);
@@ -83,6 +83,7 @@ public class MaintenanceRequestAppService : ArabianCoAsyncCrudAppService<Mainten
             .Include(x => x.Area.City.Country).ThenInclude(x => x.Translations).FirstOrDefaultAsync();
         var attachment = await _attachmentManager.GetAttachmentByRefAsync(entity.Id, Enums.Enum.AttachmentRefType.MaintenanceRequests);
         var result = MapToEntityDto(entity);
+        result.CreationTime = result.CreationTime.AddHours(10);
         result.Area = entity.AreaId.HasValue ?
                       entity.Area.MapTo<AreaDetailsDto>() :
                       new AreaDetailsDto
@@ -105,7 +106,12 @@ public class MaintenanceRequestAppService : ArabianCoAsyncCrudAppService<Mainten
 	[AbpAllowAnonymous]
 	public override async Task<PagedResultDto<LiteMaintenanceRequestDto>> GetAllAsync(PagedMaintenanceRequestResultDto input)
 	{
-		return await base.GetAllAsync(input);
+        var result = await base.GetAllAsync(input);
+        foreach (var item in result.Items)
+        {
+            item.CreationTime = item.CreationTime.AddHours(10);
+        }
+		return result;
 	}
 
 	protected override LiteMaintenanceRequestDto MapToLiteEntityDto(MaintenanceRequest entity)
@@ -135,6 +141,7 @@ public class MaintenanceRequestAppService : ArabianCoAsyncCrudAppService<Mainten
     {
         IQueryable<MaintenanceRequest> query = Repository.GetAll()
             .Include(x => x.City).ThenInclude(x => x.Translations);
+        
         //var query = Repository.GetAll();
         if (!input.phoneNumber.IsNullOrWhiteSpace())
 		{
