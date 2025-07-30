@@ -24,7 +24,7 @@ using System.Threading.Tasks;
 
 namespace ArabianCo.MaintenanceRequests;
 
-public class MaintenanceRequestAppService : ArabianCoAsyncCrudAppService<MaintenanceRequest, MaintenanceRequestDto, int, LiteMaintenanceRequestDto, PagedMaintenanceRequestResultDto, CreateMaintenanceRequestDto, UpdateMaintenanceRequestDto>, IMaintenanceRequestAppService
+public class MaintenanceRequestAppService : ArabianCoAsyncCrudAppService<MaintenanceRequest, MaintenanceRequestDto, int, LiteMaintenanceRequestDto, PagedMaintenanceRequestResultDto, CreateMaintenanceRequestDto, UpdateMaintenanceRequestDto>
 {
     //private readonly IMaintenanceRequestsManger _maintenanceRequestsManger;
     private readonly IAttachmentManager _attachmentManager;
@@ -169,32 +169,16 @@ public class MaintenanceRequestAppService : ArabianCoAsyncCrudAppService<Mainten
     {
         IQueryable<MaintenanceRequest> query = Repository.GetAll()
             .Include(x => x.City).ThenInclude(x => x.Translations);
-        
-        //var query = Repository.GetAll();
-        if (!input.phoneNumber.IsNullOrWhiteSpace())
+        if (input.IsDeleted)
+        {
+            query = query.IgnoreQueryFilters().Where(x => x.IsDeleted);
+        }
+		//var query = Repository.GetAll();
+		if (!input.phoneNumber.IsNullOrWhiteSpace())
 		{
 			query = query.Where(x => x.PhoneNumber.Contains(input.phoneNumber));
 		}
 
 		return query;
 	}
-
-        [AbpAllowAnonymous]
-        public async Task<List<LiteMaintenanceRequestDto>> GetDeletedByPhoneNumberAsync(string phoneNumber)
-        {
-            var query = Repository.GetAll()
-                            .IgnoreQueryFilters()
-                            .Where(x => x.IsDeleted && x.PhoneNumber == phoneNumber)
-							.Include(x => x.Brand).ThenInclude(x => x.Translations)
-							.Include(x => x.Category).ThenInclude(x => x.Translations)
-							.Include(x => x.City).ThenInclude(x => x.Translations)
-							.Include(x => x.Area).ThenInclude(x => x.Translations)
-							.Include(x => x.Area.City).ThenInclude(x => x.Translations)
-							.Include(x => x.Area.City.Country).ThenInclude(x => x.Translations);
-
-
-            var entities = await AsyncQueryableExecuter.ToListAsync(query);
-
-            return entities.Select(MapToLiteEntityDto).ToList();
-        }
 }

@@ -7,5 +7,4 @@ namespace ArabianCo.MaintenanceRequests;
 
 public interface IMaintenanceRequestAppService:IArabianCoAsyncCrudAppService<MaintenanceRequestDto,int,LiteMaintenanceRequestDto,PagedMaintenanceRequestResultDto,CreateMaintenanceRequestDto,UpdateMaintenanceRequestDto>
 {
-    Task<List<LiteMaintenanceRequestDto>> GetDeletedByPhoneNumberAsync(string phoneNumber);
 }
