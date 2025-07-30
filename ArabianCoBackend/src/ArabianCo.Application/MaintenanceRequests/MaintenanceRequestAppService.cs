@@ -8,7 +8,9 @@ using Abp.UI;
 using ArabianCo.Areas.Dto;
 using ArabianCo.Cities.Dto;
 using ArabianCo.CrudAppServiceBase;
+using ArabianCo.Domain.Areas;
 using ArabianCo.Domain.Attachments;
+using ArabianCo.Domain.Cities;
 using ArabianCo.Domain.MaintenanceRequests;
 using ArabianCo.EmailAppService;
 using ArabianCo.MaintenanceRequests.Dto;
@@ -27,17 +29,31 @@ public class MaintenanceRequestAppService : ArabianCoAsyncCrudAppService<Mainten
     //private readonly IMaintenanceRequestsManger _maintenanceRequestsManger;
     private readonly IAttachmentManager _attachmentManager;
     private readonly IEmailService _emailService;
-    public MaintenanceRequestAppService(IRepository<MaintenanceRequest, int> repository /*IMaintenanceRequestsManger maintenanceRequestsManger*/, IAttachmentManager attachmentManager, IEmailService emailService) : base(repository)
-    {
-        _attachmentManager = attachmentManager;
-        _emailService = emailService;
-        /*_maintenanceRequestsManger = maintenanceRequestsManger;*/
-    }
+	private readonly IRepository<City> _cityRepository;
+	private readonly IRepository<Area> _areaRepository;
+	public MaintenanceRequestAppService(IRepository<MaintenanceRequest, int> repository /*IMaintenanceRequestsManger maintenanceRequestsManger*/,
+		IAttachmentManager attachmentManager,
+		IEmailService emailService,
+		IRepository<City> cityRepository,
+		IRepository<Area> areaRepository) : base(repository)
+	{
+		_attachmentManager = attachmentManager;
+		_emailService = emailService;
+		_cityRepository = cityRepository;
+		_areaRepository = areaRepository;
+		/*_maintenanceRequestsManger = maintenanceRequestsManger;*/
+	}
 	[AbpAllowAnonymous]
 	public async override Task<MaintenanceRequestDto> CreateAsync(CreateMaintenanceRequestDto input)
     {
-        // prevent creating more than one request within a 24-hour period for the same phone number
-        if (await Repository.GetAll()
+        input.PhoneNumber = input.PhoneNumber.Trim();
+        if (input.PhoneNumber.Length !=10)
+        {
+			throw new UserFriendlyException("Phone number should be 10 digits");
+
+		}
+		// prevent creating more than one request within a 24-hour period for the same phone number
+		if (await Repository.GetAll()
                             .Where(r => r.PhoneNumber == input.PhoneNumber)
                             .Where(r => r.CreationTime > DateTime.Now.AddDays(-1))
                             .AnyAsync())
@@ -50,7 +66,19 @@ public class MaintenanceRequestAppService : ArabianCoAsyncCrudAppService<Mainten
             await _attachmentManager.CheckAndUpdateRefIdAsync(input.AttachmentId.Value, Enums.Enum.AttachmentRefType.MaintenanceRequests, result.Id);
         try
         {
-            if (!input.Email.IsNullOrEmpty())
+			string cityName = input.CityId.HasValue
+	? await _cityRepository.GetAll().Include(c => c.Translations)
+		.Where(c => c.Id == input.CityId.Value)
+		.Select(c => c.Translations.FirstOrDefault().Name)
+		.FirstOrDefaultAsync()
+	: input.OtherCity;
+			string areaName = input.AreaId.HasValue
+				? await _areaRepository.GetAll().Include(a => a.Translations)
+					.Where(a => a.Id == input.AreaId.Value)
+					.Select(a => a.Translations.FirstOrDefault().Name)
+					.FirstOrDefaultAsync()
+				: input.OtherArea;
+			if (!input.Email.IsNullOrEmpty())
             {
                 var mailAddress = new System.Net.Mail.MailAddress(input.Email);
                 await _emailService.SendEmailAsync(new List<string>
@@ -59,10 +87,10 @@ public class MaintenanceRequestAppService : ArabianCoAsyncCrudAppService<Mainten
         }, "العربية الدولية للأجهزة،نشكر تواصلكم.", "تم رفع طلب الصيانة بنجاح ، \r\nستصلكم رسالة نصية قبل الموعد بيوم لتأكيد الفترة.\r\nيرجى التواجد في الموقع، مع إمكانية تقديم الموعد في حال توفرت إمكانية.\r\n\r\n*للتواصل والاستفسار يرجى التواصل عبر الرقم الموحد*\r\n8001244080");
             }
             await _emailService.SendEmailAsync(new List<string>
-        { "aftersales11@arabianco.com", "aftersales14@arabianco.com", "aftersales9@arabianco.com"/*, "malaz.tassapehji@gmail.com"*/},
+        { /*"aftersales11@arabianco.com", "aftersales14@arabianco.com", "aftersales9@arabianco.com"*/ "malaz.tassapehji@gmail.com"},
             "New Maintenance Request",
-            //$"Client Name: {input.FullName} \r\nPhone: {input.PhoneNumber}\r\nSerial Number:{input.SerialNumber}\r\nProblem: {input.Problem}\r\n At: {Clock.Now}"
-            $"Client Name: {input.FullName} \r\nPhone: {input.PhoneNumber}\r\nSerial Number:{input.SerialNumber}\r\nProblem: {input.Problem}\r\n At: {result.CreationTime}"
+			//$"Client Name: {input.FullName} \r\nPhone: {input.PhoneNumber}\r\nSerial Number:{input.SerialNumber}\r\nProblem: {input.Problem}\r\n At: {Clock.Now}"
+			$"Client Name: {input.FullName} \r\nPhone: {input.PhoneNumber}\r\nCity: {cityName}\r\nArea: {areaName}\r\nProblem: {input.Problem}\r\nAt: {result.CreationTime}"
             );
         }
         catch (Exception e)
@@ -150,4 +178,16 @@ public class MaintenanceRequestAppService : ArabianCoAsyncCrudAppService<Mainten
 
 		return query;
 	}
+
+	//[AbpAllowAnonymous]
+	//public async Task<List<LiteMaintenanceRequestDto>> GetDeletedByPhoneNumberAsync(string phoneNumber)
+	//{
+	//	var query = Repository.GetAll()
+	//			.IgnoreQueryFilters()
+	//			.Where(x => x.IsDeleted && x.PhoneNumber == phoneNumber);
+
+	//	var entities = await AsyncQueryableExecuter.ToListAsync(query);
+
+	//	return entities.Select(MapToLiteEntityDto).ToList();
+	//}
 }
