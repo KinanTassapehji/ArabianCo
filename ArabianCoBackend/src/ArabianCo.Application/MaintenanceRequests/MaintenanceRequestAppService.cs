@@ -179,15 +179,20 @@ public class MaintenanceRequestAppService : ArabianCoAsyncCrudAppService<Mainten
 		return query;
 	}
 
-	//[AbpAllowAnonymous]
-	//public async Task<List<LiteMaintenanceRequestDto>> GetDeletedByPhoneNumberAsync(string phoneNumber)
-	//{
-	//	var query = Repository.GetAll()
-	//			.IgnoreQueryFilters()
-	//			.Where(x => x.IsDeleted && x.PhoneNumber == phoneNumber);
+	[AbpAllowAnonymous]
+	public async Task<List<LiteMaintenanceRequestDto>> GetDeletedByPhoneNumberAsync(string phoneNumber)
+	{
+		if (phoneNumber.IsNullOrWhiteSpace())
+		{
+			return new List<LiteMaintenanceRequestDto>();
+		}
 
-	//	var entities = await AsyncQueryableExecuter.ToListAsync(query);
+		var query = Repository.GetAll()
+						.IgnoreQueryFilters()
+						.Where(x => x.IsDeleted && x.PhoneNumber == phoneNumber);
 
-	//	return entities.Select(MapToLiteEntityDto).ToList();
-	//}
+		var entities = await AsyncQueryableExecuter.ToListAsync(query);
+
+		return entities.Select(MapToLiteEntityDto).ToList();
+	}
 }
