@@ -184,7 +184,14 @@ public class MaintenanceRequestAppService : ArabianCoAsyncCrudAppService<Mainten
         {
             var query = Repository.GetAll()
                             .IgnoreQueryFilters()
-                            .Where(x => x.IsDeleted && x.PhoneNumber == phoneNumber);
+                            .Where(x => x.IsDeleted && x.PhoneNumber == phoneNumber)
+							.Include(x => x.Brand).ThenInclude(x => x.Translations)
+							.Include(x => x.Category).ThenInclude(x => x.Translations)
+							.Include(x => x.City).ThenInclude(x => x.Translations)
+							.Include(x => x.Area).ThenInclude(x => x.Translations)
+							.Include(x => x.Area.City).ThenInclude(x => x.Translations)
+							.Include(x => x.Area.City.Country).ThenInclude(x => x.Translations);
+
 
             var entities = await AsyncQueryableExecuter.ToListAsync(query);
 
