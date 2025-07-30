@@ -182,6 +182,11 @@ public class MaintenanceRequestAppService : ArabianCoAsyncCrudAppService<Mainten
         [AbpAllowAnonymous]
         public async Task<List<LiteMaintenanceRequestDto>> GetDeletedByPhoneNumberAsync(string phoneNumber)
         {
+            if (phoneNumber.IsNullOrWhiteSpace())
+            {
+                return new List<LiteMaintenanceRequestDto>();
+            }
+
             var query = Repository.GetAll()
                             .IgnoreQueryFilters()
                             .Where(x => x.IsDeleted && x.PhoneNumber == phoneNumber);
