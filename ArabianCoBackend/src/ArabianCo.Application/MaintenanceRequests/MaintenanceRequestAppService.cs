@@ -1,6 +1,7 @@
 ﻿using Abp.Application.Services.Dto;
 using Abp.Authorization;
 using Abp.AutoMapper;
+using Abp.Domain.Entities;
 using Abp.Domain.Repositories;
 using Abp.Extensions;
 using Abp.Timing;
