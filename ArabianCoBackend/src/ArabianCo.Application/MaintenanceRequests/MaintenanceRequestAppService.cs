@@ -102,13 +102,22 @@ public class MaintenanceRequestAppService : ArabianCoAsyncCrudAppService<Mainten
 	[AbpAllowAnonymous]
     public override async Task<MaintenanceRequestDto> GetAsync(EntityDto<int> input)
     {
-        var entity = await Repository.GetAll().Where(x => x.Id == input.Id)
+        var entity = await Repository.GetAll()
+            .IgnoreQueryFilters()
+            .Where(x => x.Id == input.Id)
             .Include(x => x.Brand).ThenInclude(x => x.Translations)
             .Include(x => x.Category).ThenInclude(x => x.Translations)
             .Include(x => x.City).ThenInclude(x => x.Translations)
             .Include(x => x.Area).ThenInclude(x => x.Translations)
             .Include(x => x.Area.City).ThenInclude(x => x.Translations)
-            .Include(x => x.Area.City.Country).ThenInclude(x => x.Translations).FirstOrDefaultAsync();
+            .Include(x => x.Area.City.Country).ThenInclude(x => x.Translations)
+            .FirstOrDefaultAsync();
+
+        if (entity == null)
+        {
+            throw new EntityNotFoundException(typeof(MaintenanceRequest), input.Id);
+        }
+
         var attachment = await _attachmentManager.GetAttachmentByRefAsync(entity.Id, Enums.Enum.AttachmentRefType.MaintenanceRequests);
         var result = MapToEntityDto(entity);
         result.CreationTime = result.CreationTime.AddHours(10);
@@ -122,13 +131,15 @@ public class MaintenanceRequestAppService : ArabianCoAsyncCrudAppService<Mainten
                       };
 
         if (attachment != null)
+        {
             result.Attachment = new Attachments.Dto.LiteAttachmentDto
             {
                 Id = attachment.Id,
                 Url = _attachmentManager.GetUrl(attachment),
                 RefType = Enums.Enum.AttachmentRefType.MaintenanceRequests
-
             };
+        }
+
         return result;
     }
 	[AbpAllowAnonymous]
