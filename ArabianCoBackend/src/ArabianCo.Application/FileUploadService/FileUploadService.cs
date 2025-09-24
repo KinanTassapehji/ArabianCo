@@ -8,6 +8,7 @@ using Castle.Core.Logging;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using static ArabianCo.Enums.Enum;
@@ -22,6 +23,18 @@ public class FileUploadService : IFileUploadService
     //Can get those constants from configuration
     private static readonly string AttachmentsFolder = Path.Combine(AppConsts.UploadsFolderName, AppConsts.AttachmentsFolderName);
     private static readonly string ImagesFolder = Path.Combine(AppConsts.UploadsFolderName, AppConsts.ImagesFolderName);
+    private static readonly Dictionary<string, AttachmentType> FileExtensionAttachmentTypeMap = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["pdf"] = AttachmentType.PDF,
+        ["doc"] = AttachmentType.WORD,
+        ["docx"] = AttachmentType.WORD,
+        ["jpeg"] = AttachmentType.JPEG,
+        ["jpg"] = AttachmentType.JPG,
+        ["png"] = AttachmentType.PNG,
+        ["mp4"] = AttachmentType.MP4,
+        ["mp3"] = AttachmentType.MP3,
+        ["apk"] = AttachmentType.APK
+    };
 
     private readonly ISettingManager _settingManager;
     private readonly IWebHostEnvironment _webHostEnvironment;
@@ -147,11 +160,16 @@ public class FileUploadService : IFileUploadService
     /// <returns></returns>
     public AttachmentType GetAndCheckFileType(IFormFile file)
     {
+        var contentType = file.ContentType?.ToLowerInvariant();
         foreach (AttachmentType type in Enum.GetValues(typeof(AttachmentType)))
         {
-            if (file.ContentType.Contains(type.ToString().ToLower()))
+            if (!string.IsNullOrEmpty(contentType) && contentType.Contains(type.ToString().ToLowerInvariant()))
                 return type;
         }
+
+        var fileExtension = Path.GetExtension(file.FileName)?.TrimStart('.');
+        if (!string.IsNullOrEmpty(fileExtension) && FileExtensionAttachmentTypeMap.TryGetValue(fileExtension, out var typeFromExtension))
+            return typeFromExtension;
 
         throw new UserFriendlyException(L("TheAttachedFileTypeIsNotAcceptable"), $"FileName: {file.FileName}");
     }
