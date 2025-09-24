@@ -36,6 +36,29 @@ public class FileUploadService : IFileUploadService
         ["apk"] = AttachmentType.APK
     };
 
+    private static readonly Dictionary<string, AttachmentType> MimeTypeAttachmentTypeMap = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["application/pdf"] = AttachmentType.PDF,
+        ["application/x-pdf"] = AttachmentType.PDF,
+        ["application/acrobat"] = AttachmentType.PDF,
+        ["text/pdf"] = AttachmentType.PDF,
+        ["image/pdf"] = AttachmentType.PDF,
+        ["application/msword"] = AttachmentType.WORD,
+        ["application/vnd.openxmlformats-officedocument.wordprocessingml.document"] = AttachmentType.WORD,
+        ["application/vnd.ms-word"] = AttachmentType.WORD,
+        ["application/vnd.msword"] = AttachmentType.WORD,
+        ["image/jpeg"] = AttachmentType.JPEG,
+        ["image/jpg"] = AttachmentType.JPG,
+        ["image/pjpeg"] = AttachmentType.JPEG,
+        ["image/png"] = AttachmentType.PNG,
+        ["video/mp4"] = AttachmentType.MP4,
+        ["application/mp4"] = AttachmentType.MP4,
+        ["audio/mpeg"] = AttachmentType.MP3,
+        ["audio/mp3"] = AttachmentType.MP3,
+        ["audio/mpeg3"] = AttachmentType.MP3,
+        ["application/vnd.android.package-archive"] = AttachmentType.APK
+    };
+
     private readonly ISettingManager _settingManager;
     private readonly IWebHostEnvironment _webHostEnvironment;
     private readonly ILocalizationSource _localizationSource;
@@ -160,18 +183,72 @@ public class FileUploadService : IFileUploadService
     /// <returns></returns>
     public AttachmentType GetAndCheckFileType(IFormFile file)
     {
-        var contentType = file.ContentType?.ToLowerInvariant();
-        foreach (AttachmentType type in Enum.GetValues(typeof(AttachmentType)))
-        {
-            if (!string.IsNullOrEmpty(contentType) && contentType.Contains(type.ToString().ToLowerInvariant()))
-                return type;
-        }
+        if (TryResolveAttachmentTypeFromMime(file.ContentType, out var typeFromMime))
+            return typeFromMime;
 
-        var fileExtension = Path.GetExtension(file.FileName)?.TrimStart('.');
-        if (!string.IsNullOrEmpty(fileExtension) && FileExtensionAttachmentTypeMap.TryGetValue(fileExtension, out var typeFromExtension))
+        if (TryResolveAttachmentTypeFromExtension(file.FileName, out var typeFromExtension))
             return typeFromExtension;
 
         throw new UserFriendlyException(L("TheAttachedFileTypeIsNotAcceptable"), $"FileName: {file.FileName}");
+    }
+
+    private static bool TryResolveAttachmentTypeFromMime(string contentType, out AttachmentType type)
+    {
+        type = default;
+
+        if (string.IsNullOrWhiteSpace(contentType))
+            return false;
+
+        if (MimeTypeAttachmentTypeMap.TryGetValue(contentType, out type))
+            return true;
+
+        var sanitizedContentType = contentType.Split(';')[0];
+        if (MimeTypeAttachmentTypeMap.TryGetValue(sanitizedContentType, out type))
+            return true;
+
+        var mimeParts = sanitizedContentType.Split('/');
+        if (mimeParts.Length > 1)
+        {
+            var mimeSubType = mimeParts[mimeParts.Length - 1];
+            if (!string.IsNullOrEmpty(mimeSubType))
+            {
+                if (FileExtensionAttachmentTypeMap.TryGetValue(mimeSubType, out type))
+                    return true;
+
+                if (Enum.TryParse(mimeSubType, true, out type))
+                    return true;
+            }
+        }
+
+        foreach (var kvp in MimeTypeAttachmentTypeMap)
+        {
+            if (contentType.IndexOf(kvp.Key, StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                type = kvp.Value;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool TryResolveAttachmentTypeFromExtension(string fileName, out AttachmentType type)
+    {
+        type = default;
+
+        if (string.IsNullOrWhiteSpace(fileName))
+            return false;
+
+        var extension = Path.GetExtension(fileName);
+        if (string.IsNullOrWhiteSpace(extension))
+            return false;
+
+        var normalizedExtension = extension.TrimStart('.');
+
+        if (FileExtensionAttachmentTypeMap.TryGetValue(normalizedExtension, out type))
+            return true;
+
+        return Enum.TryParse(normalizedExtension, true, out type);
     }
 
     private string L(string key)
@@ -229,12 +306,33 @@ public class FileUploadService : IFileUploadService
 
     private ImageType GetAndCheckImageFileType(IFormFile file)
     {
-        foreach (ImageType type in Enum.GetValues(typeof(ImageType)))
+        var contentType = file.ContentType;
+        if (!string.IsNullOrWhiteSpace(contentType))
         {
-            if (file.ContentType.Contains(type.ToString().ToLower()))
-                return type;
+            foreach (ImageType type in Enum.GetValues(typeof(ImageType)))
+            {
+                if (contentType.IndexOf(type.ToString(), StringComparison.OrdinalIgnoreCase) >= 0)
+                    return type;
+            }
         }
 
+        if (TryResolveImageTypeFromExtension(file.FileName, out var imageTypeFromExtension))
+            return imageTypeFromExtension;
+
         throw new UserFriendlyException(L("UploadedImageFileTypeIsNotAcceptable"), $"FileName: {file.FileName}");
+    }
+
+    private static bool TryResolveImageTypeFromExtension(string fileName, out ImageType imageType)
+    {
+        imageType = default;
+
+        if (string.IsNullOrWhiteSpace(fileName))
+            return false;
+
+        var extension = Path.GetExtension(fileName);
+        if (string.IsNullOrWhiteSpace(extension))
+            return false;
+
+        return Enum.TryParse(extension.TrimStart('.'), true, out imageType);
     }
 }
