@@ -7,7 +7,6 @@ namespace ArabianCo.Domain.Questions;
 
 public class Question:FullAuditedEntity
 {
-    [Required]
     [EmailAddress]
     [StringLength(AbpUserBase.MaxEmailAddressLength)]
     public string Email { get; set; }
