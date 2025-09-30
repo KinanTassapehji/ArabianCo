@@ -52,53 +52,52 @@ public class FileUploadService : IFileUploadService
 	/// </summary>
 	/// <param name="file"></param>
 	/// <returns></returns>
-	public async Task<UploadedFileInfo> SaveAttachmentAsync(IFormFile file)
-	{
-		if (file == null || file.Length == 0)
-			throw new ArgumentException("Uploaded file is empty.", nameof(file));
+        public async Task<UploadedFileInfo> SaveAttachmentAsync(IFormFile file)
+        {
+                if (file == null || file.Length == 0)
+                        throw new ArgumentException("Uploaded file is empty.", nameof(file));
 
-		var fileInfo = new UploadedFileInfo { Type = GetAndCheckFileType(file) };
+                var fileInfo = new UploadedFileInfo { Type = GetAndCheckFileType(file) };
 
-		// 2) Resolve a fixed base folder you control (e.g., from config)
-		var uniqueName = GenerateUniqueFileName(file);
-		var baseFolder = GetPathToSaveAttachment(uniqueName);
-		if (string.IsNullOrWhiteSpace(baseFolder))
-			throw new InvalidOperationException("Attachments path is not configured.");
+                // 2) Resolve a fixed base folder you control (e.g., from config)
+                var uniqueName = GenerateUniqueFileName(file);
+                var attachmentsDirectory = GetAttachmentsDirectory();
+                if (string.IsNullOrWhiteSpace(attachmentsDirectory))
+                        throw new InvalidOperationException("Attachments path is not configured.");
 
-		// 3) Combine and normalize; ensure it stays under baseFolder
-		var fullPath = Path.GetFullPath(Path.Combine(baseFolder, uniqueName));
-		var baseFull = Path.GetFullPath(baseFolder);
-		if (!fullPath.StartsWith(baseFull, StringComparison.OrdinalIgnoreCase))
-			throw new InvalidOperationException("Invalid path traversal attempt.");
+                var baseFull = Path.GetFullPath(attachmentsDirectory);
+                var fullPath = Path.GetFullPath(Path.Combine(attachmentsDirectory, uniqueName));
+                if (!fullPath.StartsWith(baseFull, StringComparison.OrdinalIgnoreCase))
+                        throw new InvalidOperationException("Invalid path traversal attempt.");
 
-		try
-		{
-			// 4) Ensure directory exists
-			Directory.CreateDirectory(baseFull);
+                try
+                {
+                        // 4) Ensure directory exists
+                        Directory.CreateDirectory(baseFull);
 
-			// 5) Save file (use async, no sharing)
-			await using var target = new FileStream(
-				fullPath,
-				FileMode.Create,       // overwrite if same unique name somehow collides
-				FileAccess.Write,
-				FileShare.None,
-				81920,
-				useAsync: true);
+                        // 5) Save file (use async, no sharing)
+                        await using var target = new FileStream(
+                                fullPath,
+                                FileMode.Create,       // overwrite if same unique name somehow collides
+                                FileAccess.Write,
+                                FileShare.None,
+                                81920,
+                                useAsync: true);
 
-			await file.CopyToAsync(target);
+                        await file.CopyToAsync(target);
 
-			Logger.Info($"Attachment saved to '{fullPath}' successfully.");
+                        Logger.Info($"Attachment saved to '{fullPath}' successfully.");
 
-			// 6) Store a relative/virtual path as needed
-			fileInfo.RelativePath = GetAttachmentRelativePath(uniqueName);
-			return fileInfo;
-		}
-		catch (Exception ex)
-		{
-			Logger.Error($"I/O error writing '{fullPath}'. {ex.Message}");
-			throw;
-		}
-	}
+                        // 6) Store a relative/virtual path as needed
+                        fileInfo.RelativePath = GetAttachmentRelativePath(uniqueName);
+                        return fileInfo;
+                }
+                catch (Exception ex)
+                {
+                        Logger.Error($"I/O error writing '{fullPath}'. {ex.Message}");
+                        throw;
+                }
+        }
 
 	private static string SanitizeFileName(string name)
 	{
@@ -215,6 +214,12 @@ public class FileUploadService : IFileUploadService
     {
         var basePath = _webHostEnvironment.WebRootPath;
         return Path.Combine(basePath, AttachmentsFolder, fileName);
+    }
+
+    private string GetAttachmentsDirectory()
+    {
+        var basePath = _webHostEnvironment.WebRootPath;
+        return Path.Combine(basePath, AttachmentsFolder);
     }
 
     private string GetAttachmentRelativePath(string fileName)
