@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using static ArabianCo.Enums.Enum;
 
@@ -82,33 +83,70 @@ public class FileUploadService : IFileUploadService
 
         Logger = NullLogger.Instance;
     }
-    /// <summary>
-    /// Save Attachment Async
-    /// </summary>
-    /// <param name="file"></param>
-    /// <returns></returns>
-    public async Task<UploadedFileInfo> SaveAttachmentAsync(IFormFile file)
-    {
-        var fileInfo = new UploadedFileInfo { Type = GetAndCheckFileType(file) };
-
-        var fileName = GenerateUniqueFileName(file);
-        var pathToSave = GetPathToSaveAttachment(fileName);
-        using (var stream = new FileStream(pathToSave, FileMode.Create))
+	/// <summary>
+	/// Save Attachment Async
+	/// </summary>
+	/// <param name="file"></param>
+	/// <returns></returns>
+        public async Task<UploadedFileInfo> SaveAttachmentAsync(IFormFile file)
         {
-            await file.CopyToAsync(stream);
+                if (file == null || file.Length == 0)
+                        throw new ArgumentException("Uploaded file is empty.", nameof(file));
+
+                var fileInfo = new UploadedFileInfo { Type = GetAndCheckFileType(file) };
+
+                // 2) Resolve a fixed base folder you control (e.g., from config)
+                var uniqueName = GenerateUniqueFileName(file);
+                var attachmentsDirectory = GetAttachmentsDirectory();
+                if (string.IsNullOrWhiteSpace(attachmentsDirectory))
+                        throw new InvalidOperationException("Attachments path is not configured.");
+
+                var baseFull = Path.GetFullPath(attachmentsDirectory);
+                var fullPath = Path.GetFullPath(Path.Combine(attachmentsDirectory, uniqueName));
+                if (!fullPath.StartsWith(baseFull, StringComparison.OrdinalIgnoreCase))
+                        throw new InvalidOperationException("Invalid path traversal attempt.");
+
+                try
+                {
+                        // 4) Ensure directory exists
+                        Directory.CreateDirectory(baseFull);
+
+                        // 5) Save file (use async, no sharing)
+                        await using var target = new FileStream(
+                                fullPath,
+                                FileMode.Create,       // overwrite if same unique name somehow collides
+                                FileAccess.Write,
+                                FileShare.None,
+                                81920,
+                                useAsync: true);
+
+                        await file.CopyToAsync(target);
+
+                        Logger.Info($"Attachment saved to '{fullPath}' successfully.");
+
+                        // 6) Store a relative/virtual path as needed
+                        fileInfo.RelativePath = GetAttachmentRelativePath(uniqueName);
+                        return fileInfo;
+                }
+                catch (Exception ex)
+                {
+                        Logger.Error($"I/O error writing '{fullPath}'. {ex.Message}");
+                        throw;
+                }
         }
 
-        Logger.Info($"Base Attachment File was saved to ({pathToSave}) successfully.");
-
-        fileInfo.RelativePath = GetAttachmentRelativePath(fileName);
-        return fileInfo;
-    }
-    /// <summary>
-    /// Save Image Async
-    /// </summary>
-    /// <param name="file"></param>
-    /// <returns></returns>
-    public async Task<UploadedImageInfo> SaveImageAsync(IFormFile file)
+	private static string SanitizeFileName(string name)
+	{
+		foreach (var c in Path.GetInvalidFileNameChars())
+			name = name.Replace(c, '_');
+		return name.Trim();
+	}
+	/// <summary>
+	/// Save Image Async
+	/// </summary>
+	/// <param name="file"></param>
+	/// <returns></returns>
+	public async Task<UploadedImageInfo> SaveImageAsync(IFormFile file)
     {
         var fileInfo = new UploadedImageInfo { Type = GetAndCheckImageFileType(file) };
         await CheckFileSizeAsync(file);
@@ -271,6 +309,12 @@ public class FileUploadService : IFileUploadService
     {
         var basePath = _webHostEnvironment.WebRootPath;
         return Path.Combine(basePath, AttachmentsFolder, fileName);
+    }
+
+    private string GetAttachmentsDirectory()
+    {
+        var basePath = _webHostEnvironment.WebRootPath;
+        return Path.Combine(basePath, AttachmentsFolder);
     }
 
     private string GetAttachmentRelativePath(string fileName)
