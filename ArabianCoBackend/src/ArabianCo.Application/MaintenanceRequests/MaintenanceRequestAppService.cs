@@ -68,16 +68,16 @@ public class MaintenanceRequestAppService : ArabianCoAsyncCrudAppService<Mainten
         try
         {
 			string cityName = input.CityId.HasValue
-	? await _cityRepository.GetAll().Include(c => c.Translations)
-		.Where(c => c.Id == input.CityId.Value)
-		.Select(c => c.Translations.FirstOrDefault().Name)
-		.FirstOrDefaultAsync()
-	: input.OtherCity;
-			string areaName = input.AreaId.HasValue
-				? await _areaRepository.GetAll().Include(a => a.Translations)
-					.Where(a => a.Id == input.AreaId.Value)
-					.Select(a => a.Translations.FirstOrDefault().Name)
-					.FirstOrDefaultAsync()
+        ? await _cityRepository.GetAll().Include(c => c.Translations.Where(t => !t.IsDeleted))
+                .Where(c => c.Id == input.CityId.Value)
+                .Select(c => c.Translations.Where(t => !t.IsDeleted).FirstOrDefault().Name)
+                .FirstOrDefaultAsync()
+        : input.OtherCity;
+                        string areaName = input.AreaId.HasValue
+                                ? await _areaRepository.GetAll().Include(a => a.Translations.Where(t => !t.IsDeleted))
+                                        .Where(a => a.Id == input.AreaId.Value)
+                                        .Select(a => a.Translations.Where(t => !t.IsDeleted).FirstOrDefault().Name)
+                                        .FirstOrDefaultAsync()
 				: input.OtherArea;
 			if (!input.Email.IsNullOrEmpty())
             {
@@ -106,12 +106,12 @@ public class MaintenanceRequestAppService : ArabianCoAsyncCrudAppService<Mainten
         var entity = await Repository.GetAll()
             .IgnoreQueryFilters()
             .Where(x => x.Id == input.Id)
-            .Include(x => x.Brand).ThenInclude(x => x.Translations)
-            .Include(x => x.Category).ThenInclude(x => x.Translations)
-            .Include(x => x.City).ThenInclude(x => x.Translations)
-            .Include(x => x.Area).ThenInclude(x => x.Translations)
-            .Include(x => x.Area.City).ThenInclude(x => x.Translations)
-            .Include(x => x.Area.City.Country).ThenInclude(x => x.Translations)
+            .Include(x => x.Brand).ThenInclude(x => x.Translations.Where(t => !t.IsDeleted))
+            .Include(x => x.Category).ThenInclude(x => x.Translations.Where(t => !t.IsDeleted))
+            .Include(x => x.City).ThenInclude(x => x.Translations.Where(t => !t.IsDeleted))
+            .Include(x => x.Area).ThenInclude(x => x.Translations.Where(t => !t.IsDeleted))
+            .Include(x => x.Area.City).ThenInclude(x => x.Translations.Where(t => !t.IsDeleted))
+            .Include(x => x.Area.City.Country).ThenInclude(x => x.Translations.Where(t => !t.IsDeleted))
             .FirstOrDefaultAsync();
 
         if (entity == null)
@@ -180,7 +180,7 @@ public class MaintenanceRequestAppService : ArabianCoAsyncCrudAppService<Mainten
 	protected override IQueryable<MaintenanceRequest> CreateFilteredQuery(PagedMaintenanceRequestResultDto input)
     {
         IQueryable<MaintenanceRequest> query = Repository.GetAll()
-            .Include(x => x.City).ThenInclude(x => x.Translations);
+            .Include(x => x.City).ThenInclude(x => x.Translations.Where(t => !t.IsDeleted));
         if (input.IsDeleted)
         {
             query = query.IgnoreQueryFilters().Where(x => x.IsDeleted);

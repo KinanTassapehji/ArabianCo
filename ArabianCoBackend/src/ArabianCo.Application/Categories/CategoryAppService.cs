@@ -157,7 +157,7 @@ public class CategoryAppService : ArabianCoAsyncCrudAppService<Category, Categor
             data = data.Where(x => x.IsParent == input.IsParent);
         if (input.ParentCategoryId is not null)
             data = data.Where(x => x.ParentCategoryId == input.ParentCategoryId);
-        data = data.Include(x => x.Translations);
+        data = data.Include(x => x.Translations.Where(t => !t.IsDeleted));
         return data;
     }
 

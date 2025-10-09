@@ -38,8 +38,8 @@ internal class AttributeManger : DomainService, IAttributeManger
     public async Task<Attribute> GetEntityByIdAsync(int id)
     {
         var entity = await _attributeRepository.GetAll().Where(x => x.Id == id)
-            .Include(x => x.Translations)
-            .Include(x => x.Categories).ThenInclude(x => x.Translations)
+            .Include(x => x.Translations.Where(t => !t.IsDeleted))
+            .Include(x => x.Categories).ThenInclude(x => x.Translations.Where(t => !t.IsDeleted))
             .FirstOrDefaultAsync();
         if (entity == null)
             throw new EntityNotFoundException(typeof(Attribute), id);

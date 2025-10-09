@@ -43,7 +43,7 @@ public class AttributeAppService : ArabianCoAsyncCrudAppService<Attribute, Attri
     public override async Task<AttributeDto> UpdateAsync(UpdateAttributeDto input)
     {
         List<Category> categories = await _categoryManger.GetAllByListIdsAsync(input.CategoryIds);
-        var entity = await Repository.GetAll().Include(x => x.Translations).Include(x => x.Categories).FirstOrDefaultAsync(x => x.Id == input.Id);
+        var entity = await Repository.GetAll().Include(x => x.Translations.Where(t => !t.IsDeleted)).Include(x => x.Categories).FirstOrDefaultAsync(x => x.Id == input.Id);
         entity.Translations.Clear();
         entity.Categories.Clear();
         await CurrentUnitOfWork.SaveChangesAsync();
@@ -63,7 +63,7 @@ public class AttributeAppService : ArabianCoAsyncCrudAppService<Attribute, Attri
         var data = base.CreateFilteredQuery(input);
         if (input.CategoryId.HasValue)
             data = data.Where(x => x.Categories.Select(x => x.Id).Contains(input.CategoryId.Value));
-        data = data.Include(x => x.Translations);
+        data = data.Include(x => x.Translations.Where(t => !t.IsDeleted));
         return data;
     }
 }

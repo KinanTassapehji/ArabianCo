@@ -95,7 +95,7 @@ public class AboutUsAppService : ArabianCoAsyncCrudAppService<AboutUs, AboutUsDt
     protected override IQueryable<AboutUs> CreateFilteredQuery(PagedAboutUsResultRequestDto input)
     {
         var data = base.CreateFilteredQuery(input);
-        data = data.Include(x => x.Translations);
+        data = data.Include(x => x.Translations.Where(t => !t.IsDeleted));
         if (input.IsActive.HasValue)
         {
             data = data.Where(x => x.IsActive == input.IsActive);

@@ -18,7 +18,7 @@ public class FrequentlyQuestionManager : DomainService, IFrequentlyQuestionManag
 
     public async Task<FrequentlyQuestion> GetEntityByIdAsync(int id)
     {
-        var entity = await _frequentlyQuestionRepository.GetAll().Where(x => x.Id == id).Include(x => x.Translations).FirstOrDefaultAsync();
+        var entity = await _frequentlyQuestionRepository.GetAll().Where(x => x.Id == id).Include(x => x.Translations.Where(t => !t.IsDeleted)).FirstOrDefaultAsync();
         if (entity == null)
             throw new EntityNotFoundException(typeof(FrequentlyQuestion), id);
         return entity;

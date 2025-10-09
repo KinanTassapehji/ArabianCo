@@ -17,7 +17,7 @@ internal class AboutUsManger : DomainService, IAboutUsManger
     }
     public Task<AboutUs> GetEntityByIdAsync(int Id)
     {
-        var entity = _repository.GetAll().Where(x => x.Id == Id).Include(x => x.Translations).FirstOrDefaultAsync();
+        var entity = _repository.GetAll().Where(x => x.Id == Id).Include(x => x.Translations.Where(t => !t.IsDeleted)).FirstOrDefaultAsync();
         if (entity == null)
             throw new EntityNotFoundException(typeof(AboutUs), Id);
         return entity;

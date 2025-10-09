@@ -125,10 +125,13 @@ namespace ArabianCo.Areas
         /// <returns></returns>
         protected override IQueryable<Area> CreateFilteredQuery(PagedAreaResultRequestDto input)
         {
-            var data = base.CreateFilteredQuery(input);
-            data = data.Include(x => x.Translations);
-            data = data.Include(x => x.City).ThenInclude(x => x.Translations).
-                Include(x => x.City).ThenInclude(x => x.Areas).ThenInclude(x => x.Translations);
+        var data = base.CreateFilteredQuery(input);
+        data = data.Include(x => x.Translations.Where(t => !t.IsDeleted));
+        data = data.Include(x => x.City)
+            .ThenInclude(x => x.Translations.Where(t => !t.IsDeleted));
+        data = data.Include(x => x.City)
+            .ThenInclude(x => x.Areas)
+            .ThenInclude(x => x.Translations.Where(t => !t.IsDeleted));
             if (!input.Keyword.IsNullOrEmpty())
                 data = data.Where(x => x.Translations.Where(x => x.Name.Contains(input.Keyword)).Any());
             if (input.CityId.HasValue)

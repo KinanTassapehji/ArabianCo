@@ -161,14 +161,14 @@ namespace ArabianCo.Cities
         protected override IQueryable<City> CreateFilteredQuery(PagedCityResultRequestDto input)
         {
             var data = base.CreateFilteredQuery(input);
-            data = data.Include(x => x.Translations);
+            data = data.Include(x => x.Translations.Where(t => !t.IsDeleted));
             if (input.isActive.HasValue)
                 data = data.Where(x => x.IsActive == input.isActive.Value);
             if (!input.Keyword.IsNullOrEmpty())
                 data = data.Where(x => x.Translations.Where(x => x.Name.Contains(input.Keyword)).Any());
             if (input.CountryId.HasValue)
                 data = data.Where(x => x.CountryId == input.CountryId);
-            data = data.Include(x => x.Country).ThenInclude(x => x.Translations);
+            data = data.Include(x => x.Country).ThenInclude(x => x.Translations.Where(t => !t.IsDeleted));
             return data;
         }
         /// <summary>

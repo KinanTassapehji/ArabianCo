@@ -49,7 +49,7 @@ internal class CategoryManger : DomainService, ICategoryManger
 
     public async Task<Category> GetEntityByIdAsync(int id)
     {
-        var entity = await _categoryRepository.GetAll().Where(x => x.Id == id).Include(x => x.Translations).FirstOrDefaultAsync();
+        var entity = await _categoryRepository.GetAll().Where(x => x.Id == id).Include(x => x.Translations.Where(t => !t.IsDeleted)).FirstOrDefaultAsync();
         if (entity == null)
             throw new EntityNotFoundException(typeof(Category), id);
         return entity;
@@ -65,7 +65,7 @@ internal class CategoryManger : DomainService, ICategoryManger
 
     public Task<List<Category>> GetSubCategoriesByParentCategoryId(int parentCategoryId)
     {
-        return _categoryRepository.GetAll().Where(x => x.ParentCategoryId == parentCategoryId).Include(x => x.Translations).ToListAsync();
+        return _categoryRepository.GetAll().Where(x => x.ParentCategoryId == parentCategoryId).Include(x => x.Translations.Where(t => !t.IsDeleted)).ToListAsync();
     }
 
     public Task<int> InsertAndGetIdAsync(Category entity)
@@ -84,7 +84,7 @@ internal class CategoryManger : DomainService, ICategoryManger
     }
     public Task<List<Category>> GetCategoriesForProductAndAttribute()
     {
-        var result = _categoryRepository.GetAll().Where(x => x.IsParent == false).Include(x => x.Translations).ToListAsync();
+        var result = _categoryRepository.GetAll().Where(x => x.IsParent == false).Include(x => x.Translations.Where(t => !t.IsDeleted)).ToListAsync();
         return result;
     }
 }
