@@ -175,5 +175,5 @@ internal class AttachmentManager : DomainService, IAttachmentManager
         { AttachmentType.JPEG, AttachmentType.JPG, AttachmentType.PDF, AttachmentType.PNG, AttachmentType.WORD };
 
     private static readonly AttachmentType[] ImagesAcceptedTypes =
-        { AttachmentType.JPEG, AttachmentType.JPG, AttachmentType.PNG, AttachmentType.MP4,AttachmentType.PDF,AttachmentType.MP3 };
+        { AttachmentType.JPEG, AttachmentType.JPG, AttachmentType.PNG, AttachmentType.PDF, AttachmentType.MP4, AttachmentType.MP3 };
 }
