@@ -66,8 +66,8 @@ namespace KeyFinder.FrequentlyQuestionService
 
         protected override IQueryable<FrequentlyQuestion> CreateFilteredQuery(PagedFrequentlyQuestionResultRequestDto input)
         {
-            var data = base.CreateFilteredQuery(input);
-            data = data.Include(x => x.Translations);
+        var data = base.CreateFilteredQuery(input);
+        data = data.Include(x => x.Translations.Where(t => !t.IsDeleted));
             return data;
 
         }

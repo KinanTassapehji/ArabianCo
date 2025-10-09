@@ -38,7 +38,7 @@ internal class BrandManger : DomainService, IBrandManger
 
     public async Task<Brand> GetEntityByIdAsync(int id)
     {
-        var entity = await _brandRepository.GetAll().Where(x => x.Id == id).Include(x => x.Translations).FirstOrDefaultAsync();
+        var entity = await _brandRepository.GetAll().Where(x => x.Id == id).Include(x => x.Translations.Where(t => !t.IsDeleted)).FirstOrDefaultAsync();
         if (entity == null)
             throw new EntityNotFoundException(typeof(Brand), id);
         return entity;

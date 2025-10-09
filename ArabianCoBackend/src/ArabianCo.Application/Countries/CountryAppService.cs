@@ -108,7 +108,7 @@ public class CountryAppService : ArabianCoAsyncCrudAppService<Country, CountryDe
     protected override IQueryable<Country> CreateFilteredQuery(PagedCountryResultRequestDto input)
     {
         var data = base.CreateFilteredQuery(input);
-        data = data.Include(x => x.Translations);
+        data = data.Include(x => x.Translations.Where(t => !t.IsDeleted));
         if (!input.Keyword.IsNullOrEmpty())
             data = data.Where(x => x.Translations.Where(x => x.Name.Contains(input.Keyword)).Any() || x.DialCode.Contains(input.Keyword));
         if (input.IsActive.HasValue)

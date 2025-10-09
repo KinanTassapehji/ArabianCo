@@ -124,7 +124,7 @@ public class BrandAppService : ArabianCoAsyncCrudAppService<Brand, BrandDto, int
         var data = base.CreateFilteredQuery(input);
         if (input.IsActive.HasValue)
             data = data.Where(x => x.IsActive == input.IsActive.Value);
-        data = data.Include(x => x.Translations);
+        data = data.Include(x => x.Translations.Where(t => !t.IsDeleted));
         return data;
     }
 }
