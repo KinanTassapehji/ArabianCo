@@ -88,9 +88,9 @@ public class MaintenanceRequestAppService : ArabianCoAsyncCrudAppService<Mainten
         }, "العربية الدولية للأجهزة،نشكر تواصلكم.", "تم رفع طلب الصيانة بنجاح ، \r\nستصلكم رسالة نصية قبل الموعد بيوم لتأكيد الفترة.\r\nيرجى التواجد في الموقع، مع إمكانية تقديم الموعد في حال توفرت إمكانية.\r\n\r\n*للتواصل والاستفسار يرجى التواصل عبر الرقم الموحد*\r\n8001244080");
             }
             await _emailService.SendEmailAsync(new List<string>
-        { "aftersales11@arabianco.com", "aftersales14@arabianco.com", "aftersales9@arabianco.com" /*"malaz.tassapehji@gmail.com"*/},
+        { "aftersales11@arabianco.com", "aftersales14@arabianco.com", "aftersales9@arabianco.com"},
             "New Maintenance Request",
-			//$"Client Name: {input.FullName} \r\nPhone: {input.PhoneNumber}\r\nSerial Number:{input.SerialNumber}\r\nProblem: {input.Problem}\r\n At: {Clock.Now}"
+
 			$"Client Name: {input.FullName} \r\nPhone: {input.PhoneNumber}\r\nCity: {cityName}\r\nArea: {areaName}\r\nProblem: {input.Problem}\r\nAt: {result.CreationTime}"
             );
         }
@@ -108,7 +108,6 @@ public class MaintenanceRequestAppService : ArabianCoAsyncCrudAppService<Mainten
             .Where(x => x.Id == input.Id)
             .Include(x => x.Brand).ThenInclude(x => x.Translations.Where(t => !t.IsDeleted))
             .Include(x => x.Category).ThenInclude(x => x.Translations.Where(t => !t.IsDeleted))
-            .Include(x => x.City).ThenInclude(x => x.Translations.Where(t => !t.IsDeleted))
             .Include(x => x.Area).ThenInclude(x => x.Translations.Where(t => !t.IsDeleted))
             .Include(x => x.Area.City).ThenInclude(x => x.Translations.Where(t => !t.IsDeleted))
             .Include(x => x.Area.City.Country).ThenInclude(x => x.Translations.Where(t => !t.IsDeleted))
